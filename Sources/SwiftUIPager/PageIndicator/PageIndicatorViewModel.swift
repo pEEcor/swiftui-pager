@@ -28,8 +28,8 @@ class PageIndicatorViewModel: ObservableObject {
     /// Gesamtanzahl der Seiten
     @Published private(set) var count: Int
 
-    /// Das styling des PageIndicators
-    let styling: PageIndicatorSytling
+    /// The style options for the page indicator
+    let style: PageIndicatorStyle
 
     private(set) var hasStartedDrag = false
     private(set) var rollTimer: Timer?
@@ -42,7 +42,7 @@ class PageIndicatorViewModel: ObservableObject {
     /// Das Offset welches auf die Kollektion an Punkten angewant werden muss, damit diese Korrekt am linken Rand des
     /// PageIndicators aligned sind
     var baseOffset: CGFloat {
-        guard case let .constant(maxWidth) = self.styling.width else {
+        guard case let .constant(maxWidth) = self.style.width else {
             return 0
         }
         
@@ -56,7 +56,7 @@ class PageIndicatorViewModel: ObservableObject {
     /// Tatsächliche Breite des PageIndicators. Kann kleiner als ``maxWidth`` wenn weniger Platz benötigt wird um alle Punkte
     /// darzustellen
     var indicatorWidth: CGFloat {
-        if case let .constant(maxWidth) = self.styling.width {
+        if case let .constant(maxWidth) = self.style.width {
             if maxWidth > self.width {
                 return self.width
             } else {
@@ -74,7 +74,7 @@ class PageIndicatorViewModel: ObservableObject {
     /// Breite eines Segments in der Punkte Kollektion. Ein Segment ist definiert durch die Breite eines Punktes + die Breite des
     /// Freiraums zwischen zwei Punkten.
     var segmentWidth: CGFloat {
-        self.styling.plain.shape.width + self.styling.spacing
+        self.style.plain.shape.width + self.style.spacing
     }
 
     /// Erzeugt PageIndicatorViewModel
@@ -82,12 +82,12 @@ class PageIndicatorViewModel: ObservableObject {
     /// - Parameter maxWidth: Maximale breite des gesamten PageIndicators
     init(
         initialCount: Int = 0,
-        styling: PageIndicatorSytling,
+        style: PageIndicatorStyle,
         width: CGFloat,
         scheduler: AnySchedulerOf<DispatchQueue> = AnyScheduler.main
     ) {
         self.count = initialCount
-        self.styling = styling
+        self.style = style
         self.width = width
         self.scheduler = scheduler
     }
@@ -163,7 +163,7 @@ class PageIndicatorViewModel: ObservableObject {
             // Bestimme Position innerhalb von collectionSize.width
             let pos = hOffset - (CGFloat(segment) * self.segmentWidth)
 
-            return pos < self.styling.plain.shape.width ? segment : nil
+            return pos < self.style.plain.shape.width ? segment : nil
         } else if hOffset < 0 {
             return self.calcIndexForOffset(hOffset: 0)
         } else if hOffset > self.indicatorWidth {

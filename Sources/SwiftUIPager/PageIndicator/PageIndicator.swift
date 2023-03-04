@@ -28,14 +28,14 @@ struct PageIndicator<TrailingContent: View>: View {
     init(
         count: Int,
         index: Binding<Int>,
-        styling: PageIndicatorSytling = .default,
+        style: PageIndicatorStyle = .default,
         width: CGFloat,
         @ViewBuilder trailing: @escaping (Binding<Int>) -> TrailingContent = { _ in EmptyView() }
     ) {
         self._viewModel = StateObject(
             wrappedValue: PageIndicatorViewModel(
                 initialCount: count,
-                styling: styling,
+                style: style,
                 width: width
             )
         )
@@ -73,7 +73,7 @@ struct PageIndicator<TrailingContent: View>: View {
     @ViewBuilder
     private func pageIndicator() -> some View {
         HStack(spacing: 10) {
-            HStack(spacing: self.viewModel.styling.spacing) {
+            HStack(spacing: self.viewModel.style.spacing) {
                 ForEach(0 ..< self.viewModel.count, id: \.self) { index in
                     Indicator(style: self.style(for: index)) {
                         self.viewModel.setIndex(index)
@@ -118,17 +118,17 @@ struct PageIndicator<TrailingContent: View>: View {
 
     private func foregroundColor(for index: Int) -> Color {
         if index == self.viewModel.index {
-            return self.viewModel.styling.focused.color
+            return self.viewModel.style.focused.color
         } else {
-            return self.viewModel.styling.plain.color
+            return self.viewModel.style.plain.color
         }
     }
     
     private func style(for index: Int) -> PageIndicatorDotStyle {
         if index == self.viewModel.index {
-            return self.viewModel.styling.focused
+            return self.viewModel.style.focused
         } else {
-            return self.viewModel.styling.plain
+            return self.viewModel.style.plain
         }
     }
     
@@ -219,7 +219,7 @@ extension View {
                     PageIndicator(
                         count: 7,
                         index: $index,
-                        styling: PageIndicatorSytling(
+                        style: PageIndicatorStyle(
                             plainStyle: .circle(radius: 10, color: .gray),
                             focusedStyle: .circle(radius: 20),
                             spacing: 10
@@ -230,7 +230,7 @@ extension View {
                     PageIndicator(
                         count: 20,
                         index: $index,
-                        styling: PageIndicatorSytling(
+                        style: PageIndicatorStyle(
                             plainStyle: .rect(size: CGSize(width: 10, height: 10), color: .gray),
                             focusedStyle: .rect(size: CGSize(width: 50, height: 10)),
                             spacing: 10

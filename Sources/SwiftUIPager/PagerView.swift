@@ -13,7 +13,7 @@ public struct PagerView<
     private let content: ForEach<Data, Data.Element.ID, EachContent>
     private let footer: (Binding<Int>) -> Footer
     private let indicatorLocation: IndicatorLocation?
-    private let indicatorStyling: PageIndicatorSytling
+    private let indicatorStyle: PageIndicatorStyle
     private let indicatorTrailingItem: (Binding<Int>) -> IndicatorTrailingItem
 
     /// Erzeugt einen Pager
@@ -29,7 +29,7 @@ public struct PagerView<
     public init(
         _ data: Data,
         indicator: IndicatorLocation? = nil,
-        indicatorStyling: PageIndicatorSytling = .default,
+        indicatorStyle: PageIndicatorStyle = .default,
         @ViewBuilder content: @escaping (Data.Element) -> EachContent,
         @ViewBuilder footer: @escaping (Binding<Int>) -> Footer = { _ in EmptyView() },
         @ViewBuilder indicatorTrailingItem: @escaping (Binding<Int>) -> IndicatorTrailingItem =
@@ -38,7 +38,7 @@ public struct PagerView<
         self.data = data
         self.content = ForEach(data) { content($0) }
         self.indicatorLocation = indicator
-        self.indicatorStyling = indicatorStyling
+        self.indicatorStyle = indicatorStyle
         self.footer = footer
         self.indicatorTrailingItem = indicatorTrailingItem
     }
@@ -47,7 +47,7 @@ public struct PagerView<
         GeometryReader { proxy in
             VStack(spacing: 8) {
                 if case .top = self.indicatorLocation {
-                    self.pageIndicator(styling: self.indicatorStyling, width: proxy.size.width)
+                    self.pageIndicator(style: self.indicatorStyle, width: proxy.size.width)
                 }
                 
                 Pager(pageCount: self.data.count, currentIndex: self.$index) {
@@ -57,7 +57,7 @@ public struct PagerView<
                 .contentShape(Rectangle())
                 
                 if case .bottom = self.indicatorLocation {
-                    self.pageIndicator(styling: self.indicatorStyling, width: proxy.size.width)
+                    self.pageIndicator(style: self.indicatorStyle, width: proxy.size.width)
                 }
                 
                 Spacer(minLength: 0)
@@ -69,13 +69,13 @@ public struct PagerView<
 
     @ViewBuilder
     func pageIndicator(
-        styling: PageIndicatorSytling,
+        style: PageIndicatorStyle,
         width: CGFloat
     ) -> some View {
         PageIndicator(
             count: self.data.count,
             index: self.$index,
-            styling: styling,
+            style: style,
             width: width
         ) { index in
             self.indicatorTrailingItem(index)

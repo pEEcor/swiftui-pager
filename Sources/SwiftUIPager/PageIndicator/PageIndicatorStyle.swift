@@ -1,14 +1,14 @@
 import Foundation
 import SwiftUI
 
-/// Styling Options for the entire PageIndicator
-public struct PageIndicatorSytling {
+/// Style Options for the entire PageIndicator
+public struct PageIndicatorStyle {
     let plain: PageIndicatorDotStyle
     let focused: PageIndicatorDotStyle
     let spacing: CGFloat
     let width: PageIndicatorWidth
     
-    /// Creates a styling definition for an entire PageIndicator
+    /// Creates a style definition for an entire PageIndicator
     /// - Parameters:
     ///   - plainStyle: Style of a single PageIndicator dot
     ///   - focusedStyle: Style of the PageIndicator dot that represents the currently active page
@@ -26,7 +26,7 @@ public struct PageIndicatorSytling {
     }
     
     public static var `default`: Self {
-        PageIndicatorSytling()
+        PageIndicatorStyle()
     }
 }
 

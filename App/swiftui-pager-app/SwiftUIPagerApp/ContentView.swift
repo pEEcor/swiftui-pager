@@ -20,7 +20,7 @@ struct ContentView: View {
         PagerView(
             data,
             indicator: .bottom,
-            indicatorStyling: PageIndicatorSytling(
+            indicatorStyle: PageIndicatorStyle(
                 plainStyle: .circle(radius: 15, color: .gray),
                 focusedStyle: .circle(radius: 20),
                 spacing: 10,

@@ -6,6 +6,7 @@ public struct PageIndicatorSytling {
     let plain: PageIndicatorDotStyle
     let focused: PageIndicatorDotStyle
     let spacing: CGFloat
+    let width: PageIndicatorWidth
     
     /// Creates a styling definition for an entire PageIndicator
     /// - Parameters:
@@ -15,16 +16,23 @@ public struct PageIndicatorSytling {
     public init(
         plainStyle: PageIndicatorDotStyle = .default,
         focusedStyle: PageIndicatorDotStyle = .default,
-        spacing: CGFloat = 10
+        spacing: CGFloat = 10,
+        width: PageIndicatorWidth = .infinite
     ) {
         self.plain = plainStyle
         self.focused = focusedStyle
         self.spacing = spacing
+        self.width = width
     }
     
     public static var `default`: Self {
         PageIndicatorSytling()
     }
+}
+
+public enum PageIndicatorWidth {
+    case infinite
+    case constant(CGFloat)
 }
 
 public struct PageIndicatorDotStyle {

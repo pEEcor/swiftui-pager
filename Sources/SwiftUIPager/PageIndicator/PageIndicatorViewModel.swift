@@ -28,9 +28,6 @@ class PageIndicatorViewModel: ObservableObject {
     /// Gesamtanzahl der Seiten
     @Published private(set) var count: Int
 
-    /// Maximale Breite des gesamten PageIndicators
-    let maxWidth: CGFloat
-    
     /// Das styling des PageIndicators
     let styling: PageIndicatorSytling
 
@@ -38,12 +35,19 @@ class PageIndicatorViewModel: ObservableObject {
     private(set) var rollTimer: Timer?
     
     private let scheduler: AnySchedulerOf<DispatchQueue>
+    
+    /// The Width that got proposed to the PageIndicator View
+    private let width: CGFloat
 
     /// Das Offset welches auf die Kollektion an Punkten angewant werden muss, damit diese Korrekt am linken Rand des
     /// PageIndicators aligned sind
     var baseOffset: CGFloat {
-        if self.collectionSize.width > self.maxWidth {
-            return (self.collectionSize.width - self.maxWidth) / 2
+        guard case let .constant(maxWidth) = self.styling.width else {
+            return 0
+        }
+        
+        if self.collectionSize.width > maxWidth {
+            return (self.collectionSize.width - maxWidth) / 2
         } else {
             return 0
         }
@@ -52,10 +56,18 @@ class PageIndicatorViewModel: ObservableObject {
     /// Tatsächliche Breite des PageIndicators. Kann kleiner als ``maxWidth`` wenn weniger Platz benötigt wird um alle Punkte
     /// darzustellen
     var indicatorWidth: CGFloat {
-        if self.collectionSize.width > self.maxWidth {
-            return maxWidth
+        if case let .constant(maxWidth) = self.styling.width {
+            if maxWidth > self.width {
+                return self.width
+            } else {
+                return maxWidth
+            }
         } else {
-            return self.collectionSize.width
+            if self.collectionSize.width > self.width {
+                return self.width
+            } else {
+                return self.collectionSize.width
+            }
         }
     }
 
@@ -70,56 +82,56 @@ class PageIndicatorViewModel: ObservableObject {
     /// - Parameter maxWidth: Maximale breite des gesamten PageIndicators
     init(
         initialCount: Int = 0,
-        maxWidth: CGFloat = 200,
         styling: PageIndicatorSytling,
+        width: CGFloat,
         scheduler: AnySchedulerOf<DispatchQueue> = AnyScheduler.main
     ) {
         self.count = initialCount
-        self.maxWidth = maxWidth
         self.styling = styling
+        self.width = width
         self.scheduler = scheduler
     }
 
-    /// Bearbeitet eine Änderung der Drag Geste
-    /// - Parameters:
-    ///   - startLocation: Startort der Drag Geste
-    ///   - translation: Translation der Drag Geste im Verhältnis zum Startort der Geste
-    func handleTranslation(
-        startLocation: CGPoint,
-        translation: CGSize
-    ) {
-        self.hasStartedDrag = true
-
-        let hOffset = startLocation.x + translation.width
-
-        // Wenn PageIndicator zu klein ist um alle Punkte darzustellen, aktiviere Rolling wenn
-        // Rand des PageIndicators fokussiert wird
-        if self.collectionSize.width > self.maxWidth {
-            // Determine if drag currently focuses start or end area and perform roll
-            let focusedArea = self.calcFocusedArea(hOffset: hOffset)
-            if let focusedArea = focusedArea, self.isRollRequired(area: focusedArea) {
-                self.roll(focusedArea: focusedArea)
-            } else {
-                self.stopRoll()
-            }
-        }
-
-        // Bestimme den index der durch Drag Geste fokussiert wird
-        let index = calcIndexForOffset(hOffset: hOffset)
-        if let index = index {
-            // Dispatch UI Änderung auf Main Thread
-            self.scheduler.schedule { [weak self] in
-                self?.index = index
-            }
-        }
-    }
-
-    /// Bearbeitet das Endevent der Drag Geste
-    func handleDragEnding() {
-        // Unset that drag has started
-        self.hasStartedDrag = false
-        self.stopRoll()
-    }
+//    /// Bearbeitet eine Änderung der Drag Geste
+//    /// - Parameters:
+//    ///   - startLocation: Startort der Drag Geste
+//    ///   - translation: Translation der Drag Geste im Verhältnis zum Startort der Geste
+//    func handleTranslation(
+//        startLocation: CGPoint,
+//        translation: CGSize
+//    ) {
+//        self.hasStartedDrag = true
+//
+//        let hOffset = startLocation.x + translation.width
+//
+//        // Wenn PageIndicator zu klein ist um alle Punkte darzustellen, aktiviere Rolling wenn
+//        // Rand des PageIndicators fokussiert wird
+//        if self.collectionSize.width > self.maxWidth {
+//            // Determine if drag currently focuses start or end area and perform roll
+//            let focusedArea = self.calcFocusedArea(hOffset: hOffset)
+//            if let focusedArea = focusedArea, self.isRollRequired(area: focusedArea) {
+//                self.roll(focusedArea: focusedArea)
+//            } else {
+//                self.stopRoll()
+//            }
+//        }
+//
+//        // Bestimme den index der durch Drag Geste fokussiert wird
+//        let index = calcIndexForOffset(hOffset: hOffset)
+//        if let index = index {
+//            // Dispatch UI Änderung auf Main Thread
+//            self.scheduler.schedule { [weak self] in
+//                self?.index = index
+//            }
+//        }
+//    }
+//
+//    /// Bearbeitet das Endevent der Drag Geste
+//    func handleDragEnding() {
+//        // Unset that drag has started
+//        self.hasStartedDrag = false
+//        self.stopRoll()
+//    }
 
     /// Setzt die Größe der Kollektion von Punkten
     func setCollectionSize(size: CGSize) {
@@ -161,81 +173,81 @@ class PageIndicatorViewModel: ObservableObject {
         }
     }
 
-    /// Berechnet ob offset den start, das Ende oder anderen Bereich innerhalb des PageIndicators fokussiert. Die Breite des Start
-    /// und Endbereichs entsprechen der Größe eines Segments
-    ///
-    /// - Parameter hOffset: Offset innerhalb von ``self.indicatorWidth``
-    /// - Returns: Den focussierten Bereich oder nil wenn keiner der Bereiche fokussiert ist
-    private func calcFocusedArea(hOffset: CGFloat) -> FocusedArea? {
-        let startInterval = 0 ..< self.segmentWidth
-        let endInterval = self.maxWidth - self.segmentWidth ..< self.maxWidth
-
-        // Bestimme focussierten Bereich
-        if startInterval.upperBound > hOffset {
-            return .start
-        } else if endInterval.lowerBound < hOffset {
-            return .end
-        } else {
-            return nil
-        }
-    }
-
-    private func isRollRequired(area: FocusedArea) -> Bool {
-        switch area {
-        case .start:
-            return self.offset < 0
-        case .end:
-            return self.offset > self.maxWidth - self.collectionSize.width
-        }
-    }
-
-    /// Startet Rolling (automatisches Scrolling) der Kollektion von Punkten
-    /// - Parameter focusedArea: Ort welcher fokusiert ist
-    private func roll(focusedArea: FocusedArea) {
-        guard self.rollTimer == nil else {
-            return
-        }
-
-        self.rollTimer = Timer.scheduledTimer(
-            withTimeInterval: Self.ROLL_UPDATE_RATE,
-            repeats: true
-        ) { [weak self] _ in
-            guard let self = self else { return }
-
-            let totalSlice = Self.ROLL_DISTANCE_FACTOR * self.segmentWidth
-            let slice = totalSlice * Self.ROLL_UPDATE_RATE
-
-            let newOffset = {
-                switch focusedArea {
-                case .start:
-                    var newOffset = self.offset + slice
-
-                    if newOffset > 0 {
-                        newOffset = 0
-                    }
-
-                    return newOffset
-                case .end:
-                    var newOffset = self.offset - slice
-
-                    if newOffset < self.maxWidth - self.collectionSize.width {
-                        newOffset = self.maxWidth - self.collectionSize.width
-                    }
-
-                    return newOffset
-                }
-            }()
-
-            // Dispatch UI Änderung auf Main Thread
-            self.scheduler.schedule { [weak self] in
-                self?.offset = newOffset
-            }
-        }
-    }
-
-    /// Stopt das Rolling der Kollektion von Punkten
-    private func stopRoll() {
-        self.rollTimer?.invalidate()
-        self.rollTimer = nil
-    }
+//    /// Berechnet ob offset den start, das Ende oder anderen Bereich innerhalb des PageIndicators fokussiert. Die Breite des Start
+//    /// und Endbereichs entsprechen der Größe eines Segments
+//    ///
+//    /// - Parameter hOffset: Offset innerhalb von ``self.indicatorWidth``
+//    /// - Returns: Den focussierten Bereich oder nil wenn keiner der Bereiche fokussiert ist
+//    private func calcFocusedArea(hOffset: CGFloat) -> FocusedArea? {
+//        let startInterval = 0 ..< self.segmentWidth
+//        let endInterval = self.maxWidth - self.segmentWidth ..< self.maxWidth
+//
+//        // Bestimme focussierten Bereich
+//        if startInterval.upperBound > hOffset {
+//            return .start
+//        } else if endInterval.lowerBound < hOffset {
+//            return .end
+//        } else {
+//            return nil
+//        }
+//    }
+//
+//    private func isRollRequired(area: FocusedArea) -> Bool {
+//        switch area {
+//        case .start:
+//            return self.offset < 0
+//        case .end:
+//            return self.offset > self.maxWidth - self.collectionSize.width
+//        }
+//    }
+//
+//    /// Startet Rolling (automatisches Scrolling) der Kollektion von Punkten
+//    /// - Parameter focusedArea: Ort welcher fokusiert ist
+//    private func roll(focusedArea: FocusedArea) {
+//        guard self.rollTimer == nil else {
+//            return
+//        }
+//
+//        self.rollTimer = Timer.scheduledTimer(
+//            withTimeInterval: Self.ROLL_UPDATE_RATE,
+//            repeats: true
+//        ) { [weak self] _ in
+//            guard let self = self else { return }
+//
+//            let totalSlice = Self.ROLL_DISTANCE_FACTOR * self.segmentWidth
+//            let slice = totalSlice * Self.ROLL_UPDATE_RATE
+//
+//            let newOffset = {
+//                switch focusedArea {
+//                case .start:
+//                    var newOffset = self.offset + slice
+//
+//                    if newOffset > 0 {
+//                        newOffset = 0
+//                    }
+//
+//                    return newOffset
+//                case .end:
+//                    var newOffset = self.offset - slice
+//
+//                    if newOffset < self.maxWidth - self.collectionSize.width {
+//                        newOffset = self.maxWidth - self.collectionSize.width
+//                    }
+//
+//                    return newOffset
+//                }
+//            }()
+//
+//            // Dispatch UI Änderung auf Main Thread
+//            self.scheduler.schedule { [weak self] in
+//                self?.offset = newOffset
+//            }
+//        }
+//    }
+//
+//    /// Stopt das Rolling der Kollektion von Punkten
+//    private func stopRoll() {
+//        self.rollTimer?.invalidate()
+//        self.rollTimer = nil
+//    }
 }

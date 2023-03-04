@@ -44,30 +44,40 @@ public struct PagerView<
     }
 
     public var body: some View {
-        VStack(spacing: 8) {
-            if case .top = self.indicatorLocation {
-                self.pageIndicator(styling: self.indicatorStyling)
+        GeometryReader { proxy in
+            VStack(spacing: 8) {
+                if case .top = self.indicatorLocation {
+                    self.pageIndicator(styling: self.indicatorStyling, width: proxy.size.width)
+                }
+                
+                Pager(pageCount: self.data.count, currentIndex: self.$index) {
+                    self.content
+                }
+                .clipped()
+                .contentShape(Rectangle())
+                
+                if case .bottom = self.indicatorLocation {
+                    self.pageIndicator(styling: self.indicatorStyling, width: proxy.size.width)
+                }
+                
+                Spacer(minLength: 0)
+                
+                self.footer(self.$index)
             }
-
-            Pager(pageCount: self.data.count, currentIndex: self.$index) {
-                self.content
-            }
-            .clipped()
-            .contentShape(Rectangle())
-
-            if case .bottom = self.indicatorLocation {
-                self.pageIndicator(styling: self.indicatorStyling)
-            }
-
-            Spacer(minLength: 0)
-
-            self.footer(self.$index)
         }
     }
 
     @ViewBuilder
-    func pageIndicator(styling: PageIndicatorSytling) -> some View {
-        PageIndicator(count: self.data.count, index: self.$index, styling: styling) { index in
+    func pageIndicator(
+        styling: PageIndicatorSytling,
+        width: CGFloat
+    ) -> some View {
+        PageIndicator(
+            count: self.data.count,
+            index: self.$index,
+            styling: styling,
+            width: width
+        ) { index in
             self.indicatorTrailingItem(index)
         }
     }

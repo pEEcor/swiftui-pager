@@ -28,15 +28,15 @@ struct PageIndicator<TrailingContent: View>: View {
     init(
         count: Int,
         index: Binding<Int>,
-        maxWidth: CGFloat = 200,
         styling: PageIndicatorSytling = .default,
+        width: CGFloat,
         @ViewBuilder trailing: @escaping (Binding<Int>) -> TrailingContent = { _ in EmptyView() }
     ) {
         self._viewModel = StateObject(
             wrappedValue: PageIndicatorViewModel(
                 initialCount: count,
-                maxWidth: maxWidth,
-                styling: styling
+                styling: styling,
+                width: width
             )
         )
         self.count = count
@@ -52,13 +52,14 @@ struct PageIndicator<TrailingContent: View>: View {
                 width: self.trailingViewSize.width,
                 height: self.viewModel.collectionSize.height
             )
-
+            
             Spacer(minLength: 0)
-
-            self.pageIndicator
-
+            
+            self.pageIndicator()
+                .background(Color.red)
+            
             Spacer(minLength: 0)
-
+            
             self.trailingContent(self.$viewModel.index)
                 .readSize(key: PageIndicatorTrailingViewSizePreferenceKey.self)
         }
@@ -69,7 +70,8 @@ struct PageIndicator<TrailingContent: View>: View {
         .onChange(of: self.count, perform: self.viewModel.setCount(_:))
     }
 
-    var pageIndicator: some View {
+    @ViewBuilder
+    private func pageIndicator() -> some View {
         HStack(spacing: 10) {
             HStack(spacing: self.viewModel.styling.spacing) {
                 ForEach(0 ..< self.viewModel.count, id: \.self) { index in
@@ -79,7 +81,7 @@ struct PageIndicator<TrailingContent: View>: View {
                     .foregroundColor(self.foregroundColor(for: index))
                 }
             }
-            .readSize(key: PageIndicatorSizePreferenceKey.self)
+            .readSize(key: PageIndicatorCollectionSizePreferenceKey.self)
             .offset(
                 CGSize(
                     width: self.viewModel.baseOffset + self.viewModel.offset,
@@ -87,7 +89,7 @@ struct PageIndicator<TrailingContent: View>: View {
                 )
             )
         }
-        .onPreferenceChange(PageIndicatorSizePreferenceKey.self) { size in
+        .onPreferenceChange(PageIndicatorCollectionSizePreferenceKey.self) { size in
             self.viewModel.setCollectionSize(size: size)
         }
         // Propagiere Index Änderungen von ViewModel über Binding zum Parent View
@@ -163,7 +165,7 @@ struct PageIndicator<TrailingContent: View>: View {
     }
 }
 
-struct PageIndicatorSizePreferenceKey: PreferenceKey {
+struct PageIndicatorCollectionSizePreferenceKey: PreferenceKey {
     static var defaultValue: CGSize = .zero
 
     static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
@@ -174,7 +176,6 @@ struct PageIndicatorSizePreferenceKey: PreferenceKey {
     }
 }
 
-// swiftlint:disable type_name
 struct PageIndicatorTrailingViewSizePreferenceKey: PreferenceKey {
     static var defaultValue: CGSize = .zero
 
@@ -208,8 +209,6 @@ extension View {
         static var previews: some View {
             Content()
                 .padding(8)
-                .frame(width: 100)
-                .background(Color.green)
         }
 
         struct Content: View {
@@ -218,25 +217,28 @@ extension View {
             var body: some View {
                 VStack(spacing: 64) {
                     PageIndicator(
-                        count: 6,
+                        count: 7,
                         index: $index,
                         styling: PageIndicatorSytling(
                             plainStyle: .circle(radius: 10, color: .gray),
                             focusedStyle: .circle(radius: 20),
                             spacing: 10
-                        )
+                        ),
+                        width: 300
                     )
                     
                     PageIndicator(
-                        count: 6,
+                        count: 20,
                         index: $index,
                         styling: PageIndicatorSytling(
                             plainStyle: .rect(size: CGSize(width: 10, height: 10), color: .gray),
                             focusedStyle: .rect(size: CGSize(width: 50, height: 10)),
                             spacing: 10
-                        )
+                        ),
+                        width: 300
                     )
                 }
+                .background(Color.green)
             }
         }
     }

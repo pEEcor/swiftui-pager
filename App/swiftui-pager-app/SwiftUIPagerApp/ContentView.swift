@@ -14,27 +14,47 @@ struct ContentView: View {
         let number: Int
     }
 
-    let data = [Item(number: 1), Item(number: 2)]
+    let data = (0 ..< 20).map { Item(number: $0) }
 
     var body: some View {
         PagerView(
             data,
             indicator: .bottom,
-            indicatorStyling: .default) { element in
-                switch element.number {
-                case 1:
-                    Color.blue
-                case 2:
-                    Color.red
-                default:
-                    Color.green
-                }
-            }
+            indicatorStyling: PageIndicatorSytling(
+                plainStyle: .circle(radius: 15, color: .gray),
+                focusedStyle: .circle(radius: 20),
+                spacing: 10,
+                width: .constant(190)
+            )
+        ) { element in
+            Color.random
+        }
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
+    }
+}
+
+extension UIColor {
+    static var random: UIColor {
+        return UIColor(
+            red: .random(in: 0...1),
+            green: .random(in: 0...1),
+            blue: .random(in: 0...1),
+            alpha: 1
+        )
+    }
+}
+
+extension Color {
+    static var random: Color {
+        return Color(
+            red: .random(in: 0...1),
+            green: .random(in: 0...1),
+            blue: .random(in: 0...1)
+        )
     }
 }

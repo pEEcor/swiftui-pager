@@ -208,14 +208,15 @@ extension View {
         static var previews: some View {
             Content()
                 .padding(8)
+                .frame(width: 100)
+                .background(Color.green)
         }
 
         struct Content: View {
-            
             @State private var index = 3
 
             var body: some View {
-                return VStack {
+                VStack(spacing: 64) {
                     PageIndicator(
                         count: 6,
                         index: $index,

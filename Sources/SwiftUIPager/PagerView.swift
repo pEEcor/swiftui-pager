@@ -7,7 +7,7 @@ public struct PagerView<
 >: View where Data.Element: Identifiable {
     @State private var index: Int = 0
     
-    @Environment(\.pageIndicator) private var pageIndicator
+    @Environment(\.pageIndicator) private var pageIndicatorEnvironment
 
     private let data: Data
     private let content: ForEach<Data, Data.Element.ID, EachContent>
@@ -31,36 +31,32 @@ public struct PagerView<
     }
 
     public var body: some View {
-        GeometryReader { proxy in
-            VStack(spacing: 0) {
-                if case .top = self.pageIndicator.location {
-                    self.pageIndicator(width: proxy.size.width)
-                }
-                
-                Pager(pageCount: self.data.count, currentIndex: self.$index) {
-                    self.content
-                }
-                .clipped()
-                .contentShape(Rectangle())
-                
-                if case .bottom = self.pageIndicator.location {
-                    self.pageIndicator(width: proxy.size.width)
-                }
+        VStack(spacing: 0) {
+            if case .top = self.pageIndicatorEnvironment.location {
+                self.pageIndicator
+            }
+            
+            Pager(pageCount: self.data.count, currentIndex: self.$index) {
+                self.content
+            }
+            .clipped()
+            .contentShape(Rectangle())
+            .background(Color.red)
+            
+            if case .bottom = self.pageIndicatorEnvironment.location {
+                self.pageIndicator
             }
         }
     }
 
     @ViewBuilder
-    private func pageIndicator(
-        width: CGFloat
-    ) -> some View {
-        switch self.pageIndicator.kind {
+    private var pageIndicator: some View {
+        switch self.pageIndicatorEnvironment.kind {
         case .default(let style):
             PageIndicatorView(
                 count: self.data.count,
                 index: self.$index,
-                style: style,
-                width: width
+                style: style
             )
             .padding(.vertical, 8)
         case .custom(let pageIndicatorBuilder):

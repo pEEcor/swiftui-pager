@@ -5,7 +5,7 @@ import SwiftUI
 /// Der Indicator erlaubt Drag Geste auf dem Indicator wodurch automatisch diejenige Index selektiert wird welcher durch die Geste mit
 /// dem Finger focussiert wird. Sollte Der PageIndicatorView für alle Indices zu klein sein, wird dieser automatisch die Elemente scrollen
 /// wenn die Drag Geste an den Rand des PageIndicators gelangt.
-struct PageIndicatorView: View {
+public struct PageIndicatorView: View {
 
     /// ViewModel für den PageIndicator. Durch die Nutzung von StateObject wird dieses nur 1x beim ersten initialisieren
     /// dieses Views instanziert. Daher sind einige zusäzliche Synchronisationsmechanismen notwendig, für den Fall, dass
@@ -16,24 +16,24 @@ struct PageIndicatorView: View {
     private let index: Binding<Int>
     private let style: PageIndicatorStyle
 
-    /// Erzeugt PageIndicatorView
+    /// A Pageindicator. You probably don't want to use this directly. The PageIndicator of a PagerView is customizable using
+    /// dedicated view modifiers. See ``PagerView``. However, the PageIndicator may be decorated with other Views and than
+    /// injected into the PagerView as a custom PageIndicator.
     ///
     /// - Parameters:
-    ///   - count: Anzahl der Pages
-    ///   - index: Binding zu aktuellem Index
-    ///   - maxWidth: Maximale Breite des gesamten Indicators
-    ///   - trailing: Optionaler trailing View für etwaige Schaltflächen
-    init(
+    ///   - count: Total count of pages
+    ///   - index: Binding to index of currently focused page
+    ///   - style: Style of the page indicator
+    ///   - width: The width that is available to the page indicator
+    public init(
         count: Int,
         index: Binding<Int>,
-        style: PageIndicatorStyle = .default,
-        width: CGFloat
+        style: PageIndicatorStyle = .default
     ) {
         self._viewModel = StateObject(
             wrappedValue: PageIndicatorViewModel(
                 initialCount: count,
-                style: style,
-                width: width
+                style: style
             )
         )
         self.count = count
@@ -41,11 +41,18 @@ struct PageIndicatorView: View {
         self.style = style
     }
 
-    var body: some View {
+    public var body: some View {
         HStack {
             self.pageIndicator()
         }
         .frame(maxWidth: .infinity)
+        .background(
+            Color.clear
+                .readSize(key: PageIndicatorSizePreferenceKey.self)
+        )
+        .onPreferenceChange(PageIndicatorSizePreferenceKey.self) {
+            viewModel.setWidth($0.width)
+        }
         // Propagate specific changes to view model manually since it's held in a state object
         .onChange(of: self.count, perform: self.viewModel.setCount(_:))
         .onChange(of: self.style, perform: self.viewModel.setStyle(_:))
@@ -146,6 +153,17 @@ struct PageIndicatorView: View {
     }
 }
 
+struct PageIndicatorSizePreferenceKey: PreferenceKey {
+    static var defaultValue: CGSize = .zero
+
+    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
+        let next = nextValue()
+        if next != .zero {
+            value = next
+        }
+    }
+}
+
 struct PageIndicatorCollectionSizePreferenceKey: PreferenceKey {
     static var defaultValue: CGSize = .zero
 
@@ -204,9 +222,9 @@ extension View {
                             plainStyle: .circle(radius: 10, color: .gray),
                             focusedStyle: .circle(radius: 20),
                             spacing: 10
-                        ),
-                        width: 100
+                        )
                     )
+                    .frame(width: 100)
                 }
                 .background(Color.green)
             }

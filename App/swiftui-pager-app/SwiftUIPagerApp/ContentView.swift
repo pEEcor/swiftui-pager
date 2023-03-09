@@ -59,7 +59,9 @@ struct ContentView: View {
             
             PagerView(data) { element in
                 Color.random
+                    .frame(height: 400)
             }
+            
 //            .pageIndicator(location: .top) { $index in
 //                HStack {
 //                    Button("Back", action: { index -= 1 })
@@ -67,7 +69,22 @@ struct ContentView: View {
 //                    Button("Forward", action: { index += 1 })
 //                }
 //            }
-            .pageIndicator(location: self.location, style: self.style)
+//            .pageIndicator(location: self.location, style: self.style)
+            .pageIndicator(location: location) { $index in
+                HStack {
+                    PageIndicatorView(
+                        count: data.count,
+                        index: $index,
+                        style: self.style
+                    )
+                    
+                    Button("Weiter") {
+                        index += 1
+                    }
+                }
+            }
+            
+            Button("Test") {}
         }
     }
 }

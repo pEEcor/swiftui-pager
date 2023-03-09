@@ -33,10 +33,10 @@ class PageIndicatorViewModel: ObservableObject {
     private(set) var hasStartedDrag = false
     private(set) var rollTimer: Timer?
     
-    private let scheduler: AnySchedulerOf<DispatchQueue>
-    
     /// The Width that got proposed to the PageIndicator View
-    private let width: CGFloat
+    private(set) var width: CGFloat = .zero
+    
+    private let scheduler: AnySchedulerOf<DispatchQueue>
     
     /// Offset that needs to be applied such that needs to be applied to the dot collection such that the leftmost dot is aligned with
     /// the left edge of the page indicator
@@ -80,12 +80,10 @@ class PageIndicatorViewModel: ObservableObject {
     init(
         initialCount: Int = 0,
         style: PageIndicatorStyle,
-        width: CGFloat,
         scheduler: AnySchedulerOf<DispatchQueue> = AnyScheduler.main
     ) {
         self.count = initialCount
         self.style = style
-        self.width = width
         self.scheduler = scheduler
     }
 
@@ -133,19 +131,19 @@ class PageIndicatorViewModel: ObservableObject {
         }
     }
 
-    /// Bearbeitet das Endevent der Drag Geste
+    /// Handles end of drag Gesture
     func handleDragEnding() {
         // Unset that drag has started
         self.hasStartedDrag = false
         self.stopRoll()
     }
 
-    /// Setzt die Größe der Kollektion von Punkten
+    /// Sets the size of the dot collection
     func setCollectionSize(size: CGSize) {
         self.collectionSize = size
     }
 
-    /// Setzt den aktuell ausgewählten Index
+    /// Sets the current index
     func setIndex(_ index: Int) {
         guard index >= 0 && index < self.count else { return }
         withAnimation {
@@ -153,7 +151,7 @@ class PageIndicatorViewModel: ObservableObject {
         }
     }
 
-    /// Setzt die Gesamtanzahl der Punkte des PageIndicator
+    /// Sets the total count of pages/dots
     func setCount(_ count: Int) {
         self.count = count
     }
@@ -162,6 +160,11 @@ class PageIndicatorViewModel: ObservableObject {
     /// - Parameter style: The new style
     func setStyle(_ style: PageIndicatorStyle) {
         self.style = style
+    }
+    
+    /// Sets the width that is proposed by the enclosing view
+    func setWidth(_ width: CGFloat) {
+        self.width = width
     }
 
     /// Calculates the index of the dot that is focused by the given offset

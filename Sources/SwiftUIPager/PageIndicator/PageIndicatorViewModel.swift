@@ -28,7 +28,7 @@ class PageIndicatorViewModel: ObservableObject {
     @Published private(set) var count: Int
 
     /// The style options for the page indicator
-    let style: PageIndicatorStyle
+    var style: PageIndicatorStyle
 
     private(set) var hasStartedDrag = false
     private(set) var rollTimer: Timer?
@@ -102,7 +102,7 @@ class PageIndicatorViewModel: ObservableObject {
         // The targeted offset inside the page indicator window
         let hOffset = startLocation.x + translation.width
 
-        // If PageIndicator is smaller than collection size, roll when drag gesture focuses
+        // If PageIndicatorView is smaller than collection size, roll when drag gesture focuses
         // area outside of the indicator
         if self.collectionSize.width > self.indicatorWidth {
             // Determine if drag currently focuses start or end area and perform roll

@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 
 /// Style Options for the entire PageIndicator
-public struct PageIndicatorStyle {
+public struct PageIndicatorStyle: Equatable {
     let plain: PageIndicatorDotStyle
     let focused: PageIndicatorDotStyle
     let spacing: CGFloat
@@ -26,16 +26,21 @@ public struct PageIndicatorStyle {
     }
     
     public static var `default`: Self {
-        PageIndicatorStyle()
+        PageIndicatorStyle(
+            plainStyle: .circle(radius: 8, color: .gray.opacity(0.7)),
+            focusedStyle: .circle(radius: 10, color: .white),
+            spacing: 8,
+            width: .infinite
+        )
     }
 }
 
-public enum PageIndicatorWidth {
+public enum PageIndicatorWidth: Equatable {
     case infinite
     case constant(CGFloat)
 }
 
-public struct PageIndicatorDotStyle {
+public struct PageIndicatorDotStyle: Equatable {
     public var shape: Shape
     public var color: Color
     
@@ -65,7 +70,7 @@ public struct PageIndicatorDotStyle {
         PageIndicatorDotStyle()
     }
     
-    public enum Shape {
+    public enum Shape: Equatable {
         case circle(radius: CGFloat)
         case rect(size: CGSize)
         

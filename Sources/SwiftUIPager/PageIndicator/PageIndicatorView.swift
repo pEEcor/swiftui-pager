@@ -1,11 +1,11 @@
 import SwiftUI
 
-/// PageIndicator welcher den index der aktuellen Page mit einem Punkt hervorhebt
+/// PageIndicatorView welcher den index der aktuellen Page mit einem Punkt hervorhebt
 ///
 /// Der Indicator erlaubt Drag Geste auf dem Indicator wodurch automatisch diejenige Index selektiert wird welcher durch die Geste mit
-/// dem Finger focussiert wird. Sollte Der PageIndicator für alle Indices zu klein sein, wird dieser automatisch die Elemente scrollen
+/// dem Finger focussiert wird. Sollte Der PageIndicatorView für alle Indices zu klein sein, wird dieser automatisch die Elemente scrollen
 /// wenn die Drag Geste an den Rand des PageIndicators gelangt.
-struct PageIndicator<TrailingContent: View>: View {
+struct PageIndicatorView<TrailingContent: View>: View {
 
     /// ViewModel für den PageIndicator. Durch die Nutzung von StateObject wird dieses nur 1x beim ersten initialisieren
     /// dieses Views instanziert. Daher sind einige zusäzliche Synchronisationsmechanismen notwendig, für den Fall, dass
@@ -18,7 +18,7 @@ struct PageIndicator<TrailingContent: View>: View {
     private let index: Binding<Int>
     private let trailingContent: (Binding<Int>) -> TrailingContent
 
-    /// Erzeugt PageIndicator
+    /// Erzeugt PageIndicatorView
     ///
     /// - Parameters:
     ///   - count: Anzahl der Pages
@@ -42,12 +42,14 @@ struct PageIndicator<TrailingContent: View>: View {
         self.count = count
         self.index = index
         self.trailingContent = trailing
+        
+        self.viewModel.style = style
     }
 
     var body: some View {
         HStack {
             // Ein Dummy View, der die selbe Größe wie der trailing Content bekommt, sodass der
-            // PageIndicator immer automatisch zentiert ist
+            // PageIndicatorView immer automatisch zentiert ist
             Color.clear.frame(
                 width: self.trailingViewSize.width,
                 height: self.viewModel.collectionSize.height
@@ -56,7 +58,6 @@ struct PageIndicator<TrailingContent: View>: View {
             Spacer(minLength: 0)
             
             self.pageIndicator()
-                .background(Color.red.opacity(0.5))
             
             Spacer(minLength: 0)
             
@@ -216,29 +217,18 @@ extension View {
 
             var body: some View {
                 VStack(spacing: 64) {
-                    PageIndicator(
-                        count: 7,
+                    PageIndicatorView(
+                        count: 20,
                         index: $index,
                         style: PageIndicatorStyle(
                             plainStyle: .circle(radius: 10, color: .gray),
                             focusedStyle: .circle(radius: 20),
                             spacing: 10
                         ),
-                        width: 300
-                    )
-                    
-                    PageIndicator(
-                        count: 20,
-                        index: $index,
-                        style: PageIndicatorStyle(
-                            plainStyle: .rect(size: CGSize(width: 10, height: 10), color: .gray),
-                            focusedStyle: .rect(size: CGSize(width: 50, height: 10)),
-                            spacing: 10
-                        ),
-                        width: 300
+                        width: 100
                     )
                 }
-                .background(Color.green.opacity(0.5))
+                .background(Color.green)
             }
         }
     }

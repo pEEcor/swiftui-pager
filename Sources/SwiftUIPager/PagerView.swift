@@ -72,7 +72,7 @@ public struct PagerView<
         style: PageIndicatorStyle,
         width: CGFloat
     ) -> some View {
-        PageIndicator(
+        PageIndicatorView(
             count: self.data.count,
             index: self.$index,
             style: style,

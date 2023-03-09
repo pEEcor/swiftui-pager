@@ -8,35 +8,53 @@
 import SwiftUI
 import SwiftUIPager
 
+let circles = PageIndicatorStyle(
+    plainStyle: .circle(radius: 20, color: .gray),
+    focusedStyle: .circle(radius: 30),
+    spacing: 20,
+    width: .constant(250)
+)
+
+let rects = PageIndicatorStyle(
+    plainStyle: .rect(size: CGSize(width: 20, height: 20), color: .gray),
+    focusedStyle: .rect(size: CGSize(width: 80, height: 20)),
+    spacing: 20,
+    width: .constant(250)
+)
+
+struct Item: Identifiable {
+    var id: Int { self.number }
+    let number: Int
+}
+
 struct ContentView: View {
-    static let circles = PageIndicatorStyle(
-        plainStyle: .circle(radius: 20, color: .gray),
-        focusedStyle: .circle(radius: 30),
-        spacing: 20,
-        width: .constant(250)
-    )
+    @State var style: PageIndicatorStyle
     
-    static let rects = PageIndicatorStyle(
-        plainStyle: .rect(size: CGSize(width: 20, height: 20), color: .gray),
-        focusedStyle: .rect(size: CGSize(width: 80, height: 20)),
-        spacing: 20,
-        width: .constant(250)
-    )
+    let data = (0 ..< 20).map { Item(number: $0) }
     
-    struct Item: Identifiable {
-        var id: Int { self.number }
-        let number: Int
+    init(style: PageIndicatorStyle = .default) {
+        self.style = style
     }
 
-    let data = (0 ..< 20).map { Item(number: $0) }
-
     var body: some View {
-        PagerView(
-            data,
-            indicator: .bottom,
-            indicatorStyle: Self.rects
-        ) { element in
-            Color.random
+        VStack {
+            Menu("Styles") {
+                Button("Circles") {
+                    self.style = circles
+                }
+                
+                Button("Rects") {
+                    self.style = rects
+                }
+            }
+            
+            PagerView(
+                data,
+                indicator: .bottom,
+                indicatorStyle: self.style
+            ) { element in
+                Color.random
+            }
         }
     }
 }

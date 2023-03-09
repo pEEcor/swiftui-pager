@@ -56,7 +56,7 @@ struct PageIndicator<TrailingContent: View>: View {
             Spacer(minLength: 0)
             
             self.pageIndicator()
-                .background(Color.red)
+                .background(Color.red.opacity(0.5))
             
             Spacer(minLength: 0)
             
@@ -101,19 +101,19 @@ struct PageIndicator<TrailingContent: View>: View {
         .frame(width: self.viewModel.indicatorWidth)
         .contentShape(Capsule())
         .clipped()
-//        .gesture(
-//            DragGesture(minimumDistance: 1)
-//                .onChanged() { value in
-//                    // Process gesture
-//                    self.viewModel.handleTranslation(
-//                        startLocation: value.startLocation,
-//                        translation: value.translation
-//                    )
-//                }
-//                .onEnded { _ in
-//                    self.viewModel.handleDragEnding()
-//                }
-//        )
+        .gesture(
+            DragGesture(minimumDistance: 1)
+                .onChanged() { value in
+                    // Process gesture
+                    self.viewModel.handleTranslation(
+                        startLocation: value.startLocation,
+                        translation: value.translation
+                    )
+                }
+                .onEnded { _ in
+                    self.viewModel.handleDragEnding()
+                }
+        )
     }
 
     private func foregroundColor(for index: Int) -> Color {
@@ -238,7 +238,7 @@ extension View {
                         width: 300
                     )
                 }
-                .background(Color.green)
+                .background(Color.green.opacity(0.5))
             }
         }
     }

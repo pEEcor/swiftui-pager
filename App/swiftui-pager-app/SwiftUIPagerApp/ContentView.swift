@@ -9,6 +9,20 @@ import SwiftUI
 import SwiftUIPager
 
 struct ContentView: View {
+    static let circles = PageIndicatorStyle(
+        plainStyle: .circle(radius: 20, color: .gray),
+        focusedStyle: .circle(radius: 30),
+        spacing: 20,
+        width: .constant(250)
+    )
+    
+    static let rects = PageIndicatorStyle(
+        plainStyle: .rect(size: CGSize(width: 20, height: 20), color: .gray),
+        focusedStyle: .rect(size: CGSize(width: 80, height: 20)),
+        spacing: 20,
+        width: .constant(250)
+    )
+    
     struct Item: Identifiable {
         var id: Int { self.number }
         let number: Int
@@ -20,12 +34,7 @@ struct ContentView: View {
         PagerView(
             data,
             indicator: .bottom,
-            indicatorStyle: PageIndicatorStyle(
-                plainStyle: .circle(radius: 15, color: .gray),
-                focusedStyle: .circle(radius: 20),
-                spacing: 10,
-                width: .constant(190)
-            )
+            indicatorStyle: Self.rects
         ) { element in
             Color.random
         }

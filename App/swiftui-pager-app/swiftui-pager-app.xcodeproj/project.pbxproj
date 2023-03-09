@@ -22,6 +22,7 @@
 		2F61996629B371DD00656FB6 /* swiftui_pager_app.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = swiftui_pager_app.entitlements; sourceTree = "<group>"; };
 		2F61996829B371DD00656FB6 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		2F61997029B3720B00656FB6 /* swiftui-pager */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "swiftui-pager"; path = ../..; sourceTree = "<group>"; };
+		2F61997729BA49DB00656FB6 /* swiftui-pager-app-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "swiftui-pager-app-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,6 +40,7 @@
 		2F61995429B371DB00656FB6 = {
 			isa = PBXGroup;
 			children = (
+				2F61997729BA49DB00656FB6 /* swiftui-pager-app-Info.plist */,
 				2F61995F29B371DB00656FB6 /* SwiftUIPagerApp */,
 				2F61996F29B3720B00656FB6 /* Packages */,
 				2F61995E29B371DB00656FB6 /* Products */,
@@ -292,6 +294,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "swiftui-pager-app-Info.plist";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -331,6 +334,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "swiftui-pager-app-Info.plist";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;

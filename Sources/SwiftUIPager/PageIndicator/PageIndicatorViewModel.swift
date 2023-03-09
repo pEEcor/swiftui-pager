@@ -28,7 +28,7 @@ class PageIndicatorViewModel: ObservableObject {
     @Published private(set) var count: Int
 
     /// The style options for the page indicator
-    let style: PageIndicatorStyle
+    @Published private(set) var style: PageIndicatorStyle
 
     private(set) var hasStartedDrag = false
     private(set) var rollTimer: Timer?
@@ -156,6 +156,12 @@ class PageIndicatorViewModel: ObservableObject {
     /// Setzt die Gesamtanzahl der Punkte des PageIndicator
     func setCount(_ count: Int) {
         self.count = count
+    }
+    
+    /// Sets a new style
+    /// - Parameter style: The new style
+    func setStyle(_ style: PageIndicatorStyle) {
+        self.style = style
     }
 
     /// Calculates the index of the dot that is focused by the given offset

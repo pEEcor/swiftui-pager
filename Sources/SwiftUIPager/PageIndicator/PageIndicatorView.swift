@@ -12,10 +12,9 @@ struct PageIndicatorView: View {
     /// dieser View im body einer anderen View mit veränderten Werten erneut aufgerufen wird.
     @StateObject private var viewModel: PageIndicatorViewModel
 
-    @State private var trailingViewSize: CGSize = .zero
-
     private let count: Int
     private let index: Binding<Int>
+    private let style: PageIndicatorStyle
 
     /// Erzeugt PageIndicatorView
     ///
@@ -39,6 +38,7 @@ struct PageIndicatorView: View {
         )
         self.count = count
         self.index = index
+        self.style = style
     }
 
     var body: some View {
@@ -46,11 +46,9 @@ struct PageIndicatorView: View {
             self.pageIndicator()
         }
         .frame(maxWidth: .infinity)
-        .onPreferenceChange(PageIndicatorTrailingViewSizePreferenceKey.self) { size in
-            self.trailingViewSize = size
-        }
-        // Informiere ViewModel über veränderten Count Wert.
+        // Propagate specific changes to view model manually since it's held in a state object
         .onChange(of: self.count, perform: self.viewModel.setCount(_:))
+        .onChange(of: self.style, perform: self.viewModel.setStyle(_:))
     }
 
     @ViewBuilder

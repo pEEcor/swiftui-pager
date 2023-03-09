@@ -28,36 +28,46 @@ struct Item: Identifiable {
 }
 
 struct ContentView: View {
-    @State var style: PageIndicatorStyle
+    @State var style: PageIndicatorStyle = circles
+    @State var location: PageIndicatorLocation = .top
     
     let data = (0 ..< 20).map { Item(number: $0) }
     
-    init(style: PageIndicatorStyle = rects) {
-        self.style = style
-    }
-
     var body: some View {
         VStack {
-            Menu("Styles") {
-                Button("Circles") {
-                    self.style = circles
+            HStack {
+                Menu("Location") {
+                    Button("Top") {
+                        self.location = .top
+                    }
+                    
+                    Button("Bottom") {
+                        self.location = .bottom
+                    }
                 }
                 
-                Button("Rects") {
-                    self.style = rects
+                Menu("Styles") {
+                    Button("Circles") {
+                        self.style = circles
+                    }
+                    
+                    Button("Rects") {
+                        self.style = rects
+                    }
                 }
             }
             
             PagerView(data) { element in
                 Color.random
             }
-            .pageIndicator(location: .top) { $index in
-                HStack {
-                    Button("Back", action: { index -= 1 })
-                    Text("\(index)")
-                    Button("Forward", action: { index += 1 })
-                }
-            }
+//            .pageIndicator(location: .top) { $index in
+//                HStack {
+//                    Button("Back", action: { index -= 1 })
+//                    Text("\(index)")
+//                    Button("Forward", action: { index += 1 })
+//                }
+//            }
+            .pageIndicator(location: self.location, style: self.style)
         }
     }
 }

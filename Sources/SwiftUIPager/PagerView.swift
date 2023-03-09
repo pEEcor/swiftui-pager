@@ -62,6 +62,7 @@ public struct PagerView<
                 style: style,
                 width: width
             )
+            .padding(.vertical, 8)
         case .custom(let pageIndicatorBuilder):
             pageIndicatorBuilder(self.$index)
         }

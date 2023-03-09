@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Ein Pager, der es ermöglicht mehrere Views in mehreren, horizontal scrollbaren, Pages darzustellen
+/// A Pager that shows multiple Pages with horizontal scrolling between them
 public struct PagerView<
     Data: RandomAccessCollection,
     EachContent: View,
@@ -8,28 +8,23 @@ public struct PagerView<
     IndicatorTrailingItem: View
 >: View where Data.Element: Identifiable {
     @State private var index: Int = 0
+    
+    @Environment(\.pageIndicator) private var pageIndicator
 
     private let data: Data
     private let content: ForEach<Data, Data.Element.ID, EachContent>
     private let footer: (Binding<Int>) -> Footer
-    private let indicatorLocation: IndicatorLocation?
-    private let indicatorStyle: PageIndicatorStyle
     private let indicatorTrailingItem: (Binding<Int>) -> IndicatorTrailingItem
 
-    /// Erzeugt einen Pager
+    /// Creates a PagerView
     ///
-    /// Alle Pages werden initial gebaut. Lazy initialization der einzelnen Pages ist nicht implementiert.
+    /// - Important: All Pages will be built up front. There is no lazy initialization of pages
     ///
     /// - Parameters:
-    ///   - data: Die Datencollection für die für jedes item eine Page erstellt wird
-    ///   - indicator: Position des Pages indicator. Kein Page indicator wenn nil
-    ///   - content: ViewBuilder closure welches anhand eines übergebenen Items dessen View baut
-    ///   - footer: Ein optionaler Footer der unterhalb des Pagers angezeigt wird. Das ViewBuilder closure erhält ein binding auf
-    ///   den Index des Pagers um dieses gegebenenfalls manipulieren zu können.
+    ///   - data: Source Data. A View is built for each element using the content closure
+    ///   - content: ViewBuilder closure that builds a Page for a single element
     public init(
         _ data: Data,
-        indicator: IndicatorLocation? = nil,
-        indicatorStyle: PageIndicatorStyle = .default,
         @ViewBuilder content: @escaping (Data.Element) -> EachContent,
         @ViewBuilder footer: @escaping (Binding<Int>) -> Footer = { _ in EmptyView() },
         @ViewBuilder indicatorTrailingItem: @escaping (Binding<Int>) -> IndicatorTrailingItem =
@@ -37,17 +32,15 @@ public struct PagerView<
     ) where Data.Element: Identifiable {
         self.data = data
         self.content = ForEach(data) { content($0) }
-        self.indicatorLocation = indicator
-        self.indicatorStyle = indicatorStyle
         self.footer = footer
         self.indicatorTrailingItem = indicatorTrailingItem
     }
 
     public var body: some View {
         GeometryReader { proxy in
-            VStack(spacing: 8) {
-                if case .top = self.indicatorLocation {
-                    self.pageIndicator(style: self.indicatorStyle, width: proxy.size.width)
+            VStack(spacing: 0) {
+                if case .top = self.pageIndicator.location {
+                    self.pageIndicator(width: proxy.size.width)
                 }
                 
                 Pager(pageCount: self.data.count, currentIndex: self.$index) {
@@ -56,8 +49,8 @@ public struct PagerView<
                 .clipped()
                 .contentShape(Rectangle())
                 
-                if case .bottom = self.indicatorLocation {
-                    self.pageIndicator(style: self.indicatorStyle, width: proxy.size.width)
+                if case .bottom = self.pageIndicator.location {
+                    self.pageIndicator(width: proxy.size.width)
                 }
                 
                 Spacer(minLength: 0)
@@ -68,27 +61,26 @@ public struct PagerView<
     }
 
     @ViewBuilder
-    func pageIndicator(
-        style: PageIndicatorStyle,
+    private func pageIndicator(
         width: CGFloat
     ) -> some View {
-        PageIndicatorView(
-            count: self.data.count,
-            index: self.$index,
-            style: style,
-            width: width
-        ) { index in
-            self.indicatorTrailingItem(index)
+        switch self.pageIndicator.kind {
+        case .default(let style):
+            PageIndicatorView(
+                count: self.data.count,
+                index: self.$index,
+                style: style,
+                width: width
+            ) { index in
+                self.indicatorTrailingItem(index)
+            }
+        case .custom(let pageIndicatorBuilder):
+            pageIndicatorBuilder(self.$index)
         }
     }
 }
 
-public extension PagerView {
-    enum IndicatorLocation {
-        case top
-        case bottom
-    }
-}
+
 
 #if DEBUG
     struct Pager_Previews: PreviewProvider {
@@ -106,7 +98,7 @@ public extension PagerView {
 
         struct ContentView1: View {
             var body: some View {
-                PagerView(data, indicator: .top) { element in
+                PagerView(data) { element in
                     switch element.number {
                     case 1:
                         Color.blue
@@ -120,12 +112,13 @@ public extension PagerView {
                 } indicatorTrailingItem: { _ in
                     Text("Next")
                 }
+                .pageIndicator(location: .top)
             }
         }
 
         struct ContentView2: View {
             var body: some View {
-                PagerView(data, indicator: .bottom) { element in
+                PagerView(data) { element in
                     switch element.number {
                     case 1:
                         Color.blue

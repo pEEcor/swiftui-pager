@@ -32,7 +32,7 @@ struct ContentView: View {
     
     let data = (0 ..< 20).map { Item(number: $0) }
     
-    init(style: PageIndicatorStyle = .default) {
+    init(style: PageIndicatorStyle = rects) {
         self.style = style
     }
 
@@ -48,12 +48,15 @@ struct ContentView: View {
                 }
             }
             
-            PagerView(
-                data,
-                indicator: .bottom,
-                indicatorStyle: self.style
-            ) { element in
+            PagerView(data) { element in
                 Color.random
+            }
+            .pageIndicator(location: .top) { $index in
+                HStack {
+                    Button("Back", action: { index -= 1 })
+                    Text("\(index)")
+                    Button("Forward", action: { index += 1 })
+                }
             }
         }
     }

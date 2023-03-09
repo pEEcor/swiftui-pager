@@ -28,7 +28,7 @@ class PageIndicatorViewModel: ObservableObject {
     @Published private(set) var count: Int
 
     /// The style options for the page indicator
-    var style: PageIndicatorStyle
+    let style: PageIndicatorStyle
 
     private(set) var hasStartedDrag = false
     private(set) var rollTimer: Timer?

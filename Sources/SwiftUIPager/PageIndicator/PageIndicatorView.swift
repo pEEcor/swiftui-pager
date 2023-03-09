@@ -42,8 +42,6 @@ struct PageIndicatorView<TrailingContent: View>: View {
         self.count = count
         self.index = index
         self.trailingContent = trailing
-        
-        self.viewModel.style = style
     }
 
     var body: some View {

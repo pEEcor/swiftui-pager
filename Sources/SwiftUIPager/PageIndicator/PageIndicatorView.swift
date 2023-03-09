@@ -5,7 +5,7 @@ import SwiftUI
 /// Der Indicator erlaubt Drag Geste auf dem Indicator wodurch automatisch diejenige Index selektiert wird welcher durch die Geste mit
 /// dem Finger focussiert wird. Sollte Der PageIndicatorView für alle Indices zu klein sein, wird dieser automatisch die Elemente scrollen
 /// wenn die Drag Geste an den Rand des PageIndicators gelangt.
-struct PageIndicatorView<TrailingContent: View>: View {
+struct PageIndicatorView: View {
 
     /// ViewModel für den PageIndicator. Durch die Nutzung von StateObject wird dieses nur 1x beim ersten initialisieren
     /// dieses Views instanziert. Daher sind einige zusäzliche Synchronisationsmechanismen notwendig, für den Fall, dass
@@ -16,7 +16,6 @@ struct PageIndicatorView<TrailingContent: View>: View {
 
     private let count: Int
     private let index: Binding<Int>
-    private let trailingContent: (Binding<Int>) -> TrailingContent
 
     /// Erzeugt PageIndicatorView
     ///
@@ -29,8 +28,7 @@ struct PageIndicatorView<TrailingContent: View>: View {
         count: Int,
         index: Binding<Int>,
         style: PageIndicatorStyle = .default,
-        width: CGFloat,
-        @ViewBuilder trailing: @escaping (Binding<Int>) -> TrailingContent = { _ in EmptyView() }
+        width: CGFloat
     ) {
         self._viewModel = StateObject(
             wrappedValue: PageIndicatorViewModel(
@@ -41,27 +39,13 @@ struct PageIndicatorView<TrailingContent: View>: View {
         )
         self.count = count
         self.index = index
-        self.trailingContent = trailing
     }
 
     var body: some View {
         HStack {
-            // Ein Dummy View, der die selbe Größe wie der trailing Content bekommt, sodass der
-            // PageIndicatorView immer automatisch zentiert ist
-            Color.clear.frame(
-                width: self.trailingViewSize.width,
-                height: self.viewModel.collectionSize.height
-            )
-            
-            Spacer(minLength: 0)
-            
             self.pageIndicator()
-            
-            Spacer(minLength: 0)
-            
-            self.trailingContent(self.$viewModel.index)
-                .readSize(key: PageIndicatorTrailingViewSizePreferenceKey.self)
         }
+        .frame(maxWidth: .infinity)
         .onPreferenceChange(PageIndicatorTrailingViewSizePreferenceKey.self) { size in
             self.trailingViewSize = size
         }

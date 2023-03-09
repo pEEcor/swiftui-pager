@@ -3,9 +3,7 @@ import SwiftUI
 /// A Pager that shows multiple Pages with horizontal scrolling between them
 public struct PagerView<
     Data: RandomAccessCollection,
-    EachContent: View,
-    Footer: View,
-    IndicatorTrailingItem: View
+    EachContent: View
 >: View where Data.Element: Identifiable {
     @State private var index: Int = 0
     
@@ -13,10 +11,11 @@ public struct PagerView<
 
     private let data: Data
     private let content: ForEach<Data, Data.Element.ID, EachContent>
-    private let footer: (Binding<Int>) -> Footer
-    private let indicatorTrailingItem: (Binding<Int>) -> IndicatorTrailingItem
 
     /// Creates a PagerView
+    ///
+    /// For customization of the PagerView have a look into ``pageIndicator(location:style:)`` and
+    /// ``pageIndicator(location:content:)``.
     ///
     /// - Important: All Pages will be built up front. There is no lazy initialization of pages
     ///
@@ -25,15 +24,10 @@ public struct PagerView<
     ///   - content: ViewBuilder closure that builds a Page for a single element
     public init(
         _ data: Data,
-        @ViewBuilder content: @escaping (Data.Element) -> EachContent,
-        @ViewBuilder footer: @escaping (Binding<Int>) -> Footer = { _ in EmptyView() },
-        @ViewBuilder indicatorTrailingItem: @escaping (Binding<Int>) -> IndicatorTrailingItem =
-            { _ in EmptyView() }
+        @ViewBuilder content: @escaping (Data.Element) -> EachContent
     ) where Data.Element: Identifiable {
         self.data = data
         self.content = ForEach(data) { content($0) }
-        self.footer = footer
-        self.indicatorTrailingItem = indicatorTrailingItem
     }
 
     public var body: some View {
@@ -52,10 +46,6 @@ public struct PagerView<
                 if case .bottom = self.pageIndicator.location {
                     self.pageIndicator(width: proxy.size.width)
                 }
-                
-                Spacer(minLength: 0)
-                
-                self.footer(self.$index)
             }
         }
     }
@@ -71,9 +61,7 @@ public struct PagerView<
                 index: self.$index,
                 style: style,
                 width: width
-            ) { index in
-                self.indicatorTrailingItem(index)
-            }
+            )
         case .custom(let pageIndicatorBuilder):
             pageIndicatorBuilder(self.$index)
         }
@@ -107,10 +95,6 @@ public struct PagerView<
                     default:
                         Color.green
                     }
-                } footer: { $index in
-                    Text("\(index)")
-                } indicatorTrailingItem: { _ in
-                    Text("Next")
                 }
                 .pageIndicator(location: .top)
             }
@@ -126,12 +110,6 @@ public struct PagerView<
                         Color.red
                     default:
                         Color.green
-                    }
-                } footer: { index in
-                    Text("\(index.wrappedValue)")
-                } indicatorTrailingItem: { $index in
-                    Button("Next") {
-                        index += 1
                     }
                 }
             }

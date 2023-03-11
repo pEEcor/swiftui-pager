@@ -4,6 +4,8 @@ struct Pager<Content: View>: View {
     @Binding var index: Int
     @GestureState private var translation: CGFloat = 0
     
+    @State private var size: CGSize = .zero
+    
     let count: Int
     let content: Content
     
@@ -24,26 +26,53 @@ struct Pager<Content: View>: View {
     }
     
     var body: some View {
-        GeometryReader { geometry in
-            HStack(spacing: 0) {
-                self.content.frame(width: geometry.size.width)
-            }
-            .frame(width: geometry.size.width, alignment: .leading)
-            .offset(x: -CGFloat(self.index) * geometry.size.width)
-            .offset(x: self.translation)
-            .animation(.interactiveSpring(), value: index)
-            .animation(.interactiveSpring(), value: translation)
-            .gesture(
-                DragGesture()
-                    .updating(self.$translation) { value, state, _ in
-                        state = value.translation.width
-                    }
-                    .onEnded { value in
-                        let offset = value.translation.width / geometry.size.width
-                        let newIndex = (CGFloat(self.index) - offset).rounded()
-                        self.index = min(max(Int(newIndex), 0), self.count - 1)
-                    }
-            )
+        ZStack {
+            self.sizeReader
+            self.pager
+        }
+        .onPreferenceChange(PagerSizePreferenceKey.self) { size in
+            self.size = size
+        }
+    }
+    
+    @ViewBuilder
+    private var sizeReader: some View {
+        Color.clear
+            .frame(maxWidth: .infinity, maxHeight: .zero)
+            .readSize(key: PagerSizePreferenceKey.self)
+    }
+    
+    @ViewBuilder
+    private var pager: some View {
+        HStack(spacing: 0) {
+            self.content.frame(width: self.size.width)
+        }
+        .frame(width: self.size.width, alignment: .leading)
+        .offset(x: -CGFloat(self.index) * self.size.width)
+        .offset(x: self.translation)
+        .animation(.interactiveSpring(), value: index)
+        .animation(.interactiveSpring(), value: translation)
+        .gesture(
+            DragGesture()
+                .updating(self.$translation) { value, state, _ in
+                    state = value.translation.width
+                }
+                .onEnded { value in
+                    let offset = value.translation.width / self.size.width
+                    let newIndex = (CGFloat(self.index) - offset).rounded()
+                    self.index = min(max(Int(newIndex), 0), self.count - 1)
+                }
+        )
+    }
+}
+
+private struct PagerSizePreferenceKey: PreferenceKey {
+    static var defaultValue: CGSize = .zero
+
+    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
+        let next = nextValue()
+        if next != .zero {
+            value = next
         }
     }
 }

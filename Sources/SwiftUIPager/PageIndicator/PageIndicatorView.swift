@@ -186,23 +186,6 @@ struct PageIndicatorTrailingViewSizePreferenceKey: PreferenceKey {
     }
 }
 
-extension View {
-    func readSize<T: PreferenceKey>(
-        key: T.Type
-    ) -> some View where T.Value == CGSize {
-        self.background(
-            GeometryReader(
-                content: { proxy in
-                    Color.clear.preference(
-                        key: key.self,
-                        value: proxy.size
-                    )
-                }
-            )
-        )
-    }
-}
-
 #if DEBUG
     struct PagerIndicator_Previews: PreviewProvider {
         static var previews: some View {

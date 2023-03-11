@@ -98,8 +98,10 @@ struct PagerView_Builder_Previews: PreviewProvider {
                     switch element.number {
                     case 1:
                         Color.blue
+                            .frame(height: 200)
                     case 2:
                         Color.red
+                            .frame(height: 400)
                     default:
                         Color.green
                     }

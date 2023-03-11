@@ -83,8 +83,6 @@ struct ContentView: View {
                     }
                 }
             }
-            
-            Button("Test") {}
         }
     }
 }

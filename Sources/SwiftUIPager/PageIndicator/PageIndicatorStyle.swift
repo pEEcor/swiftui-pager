@@ -3,16 +3,23 @@ import SwiftUI
 
 /// Style Options for the entire PageIndicator
 public struct PageIndicatorStyle: Equatable {
+    /// The style of a normal dot
     let plain: PageIndicatorDotStyle
+    
+    /// The style of a dot represinting the active page
     let focused: PageIndicatorDotStyle
+    
+    /// The spacing between dots
     let spacing: CGFloat
+    
+    /// The max width that the page indicator should have
     let width: PageIndicatorWidth
     
-    /// Creates a style definition for an entire PageIndicator
+    /// Creates a style definition for a page indicator
     /// - Parameters:
-    ///   - plainStyle: Style of a single PageIndicator dot
-    ///   - focusedStyle: Style of the PageIndicator dot that represents the currently active page
-    ///   - spacing: Spacing between the individual PageIndicator dots
+    ///   - plainStyle: Style of a single page indicator dot
+    ///   - focusedStyle: Style of the page indicator dot that represents the currently active page
+    ///   - spacing: Spacing between the individual page indicator dots
     public init(
         plainStyle: PageIndicatorDotStyle = .default,
         focusedStyle: PageIndicatorDotStyle = .default,
@@ -25,6 +32,7 @@ public struct PageIndicatorStyle: Equatable {
         self.width = width
     }
     
+    /// The default style using sensible default values
     public static var `default`: Self {
         PageIndicatorStyle(
             plainStyle: .circle(radius: 8, color: .gray.opacity(0.7)),
@@ -35,15 +43,27 @@ public struct PageIndicatorStyle: Equatable {
     }
 }
 
+/// Width definition of a page indicator
 public enum PageIndicatorWidth: Equatable {
+    /// Infinite width (page indicator will take as much space horizontally as possible)
     case infinite
+    
+    /// Custom non infinite width
     case constant(CGFloat)
 }
 
+/// Style definition for a single page indicator dot
 public struct PageIndicatorDotStyle: Equatable {
-    public var shape: Shape
-    public var color: Color
+    /// The shape of the dot
+    public let shape: Shape
     
+    /// The color of the dot
+    public let color: Color
+    
+    /// Creates a style definition for a page indicator dot
+    /// - Parameters:
+    ///   - shape: The shape of the dot
+    ///   - color: The color of the dot
     public init(
         shape: Shape = .circle(radius: 10),
         color: Color = .accentColor
@@ -52,6 +72,11 @@ public struct PageIndicatorDotStyle: Equatable {
         self.color = color
     }
     
+    /// Creates a style definition for a cirle shaped page indicator dot
+    /// - Parameters:
+    ///   - radius: The radius of the dot
+    ///   - color: The color of the dot, defaults to accent color
+    /// - Returns: A page indicator dot style
     public static func circle(
         radius: CGFloat,
         color: Color = .accentColor
@@ -59,6 +84,11 @@ public struct PageIndicatorDotStyle: Equatable {
         PageIndicatorDotStyle(shape: .circle(radius: radius), color: color)
     }
     
+    /// Creates a style definition for a rectangular shaped page indicator dot
+    /// - Parameters:
+    ///   - size: The size of the dot
+    ///   - color: The color of the dot, defaults to accent color
+    /// - Returns: A page indicator dot style
     public static func rect(
         size: CGSize,
         color: Color = .accentColor
@@ -66,14 +96,20 @@ public struct PageIndicatorDotStyle: Equatable {
         PageIndicatorDotStyle(shape: .rect(size: size), color: color)
     }
     
+    /// The default style using sensible default values
     public static var `default`: Self {
         PageIndicatorDotStyle()
     }
     
+    /// Shape Definition of a page indicator dot
     public enum Shape: Equatable {
+        /// Circle shape
         case circle(radius: CGFloat)
+        
+        /// Rectangle shape
         case rect(size: CGSize)
         
+        /// The width of the shape
         var width: CGFloat {
             switch self {
             case .circle(radius: let radius):
@@ -83,6 +119,7 @@ public struct PageIndicatorDotStyle: Equatable {
             }
         }
         
+        /// The height of the shape
         var height: CGFloat {
             switch self {
             case .circle(radius: let radius):

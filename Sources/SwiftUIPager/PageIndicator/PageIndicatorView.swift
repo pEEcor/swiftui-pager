@@ -1,30 +1,39 @@
 import SwiftUI
 
-/// PageIndicatorView welcher den index der aktuellen Page mit einem Punkt hervorhebt
+/// A PageIndicator that shows a visual representation of which page is currenlty focused by a pager. Usually not directly required.
 ///
-/// Der Indicator erlaubt Drag Geste auf dem Indicator wodurch automatisch diejenige Index selektiert wird welcher durch die Geste mit
-/// dem Finger focussiert wird. Sollte Der PageIndicatorView für alle Indices zu klein sein, wird dieser automatisch die Elemente scrollen
-/// wenn die Drag Geste an den Rand des PageIndicators gelangt.
+/// This is the default page indicator that is used by the pager. It my be styled using ``pageIndicator(location:style:)``.
+/// If additional customization is required. This view may be further decorated and injected into the ``PagerView`` using
+/// ``pageIndicator(location:content:)``.
+///
+/// The PageIndicatorView allows multiple interactions that modify the state of a Pager. Usually, a PageIndicator is showing simple
+/// dots, each representing a Page of the associated Pager. Selecting such a dot focuses the Page in the Pager. Additionally, the
+/// PageIndicatorView enables scrolling of the dots when the Pager has too much content for the PageIndicatorView to show a dot
+/// for each page. In this case the dots can be scrolled when performing a drag gesture that exceeds the PageIndicatorView's bounds.
 public struct PageIndicatorView: View {
 
-    /// ViewModel für den PageIndicator. Durch die Nutzung von StateObject wird dieses nur 1x beim ersten initialisieren
-    /// dieses Views instanziert. Daher sind einige zusäzliche Synchronisationsmechanismen notwendig, für den Fall, dass
-    /// dieser View im body einer anderen View mit veränderten Werten erneut aufgerufen wird.
+    // View model for the page indicator. By using a state object, the view model will be
+    // instatiated exactly once. This allows this view to manage its view model by itself, without
+    // any user of the view knowing that this view uses a view model. However subsequent calls to
+    // the view's initializer will not update the view model. Specifically count and style,
+    // therefore additional onChange modifiers are employed to propagate such changes into the view
+    // model.
     @StateObject private var viewModel: PageIndicatorViewModel
 
     private let count: Int
     private let index: Binding<Int>
     private let style: PageIndicatorStyle
 
-    /// A Pageindicator. You probably don't want to use this directly. The PageIndicator of a PagerView is customizable using
-    /// dedicated view modifiers. See ``PagerView``. However, the PageIndicator may be decorated with other Views and than
-    /// injected into the PagerView as a custom PageIndicator.
+    /// Creates PageIndicatorView, typlically for manual customization.
+    ///
+    /// You probably don't want to use this directly. The PageIndicator of a PagerView is customizable using
+    /// a dedicated view modifier. See ``pageIndicator(location:style:)``. However, the PageIndicator may be decorated
+    /// with other Views and than injected into the PagerView as a custom PageIndicator.
     ///
     /// - Parameters:
     ///   - count: Total count of pages
     ///   - index: Binding to index of currently focused page
     ///   - style: Style of the page indicator
-    ///   - width: The width that is available to the page indicator
     public init(
         count: Int,
         index: Binding<Int>,
@@ -153,7 +162,7 @@ public struct PageIndicatorView: View {
     }
 }
 
-struct PageIndicatorSizePreferenceKey: PreferenceKey {
+private struct PageIndicatorSizePreferenceKey: PreferenceKey {
     static var defaultValue: CGSize = .zero
 
     static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
@@ -164,18 +173,7 @@ struct PageIndicatorSizePreferenceKey: PreferenceKey {
     }
 }
 
-struct PageIndicatorCollectionSizePreferenceKey: PreferenceKey {
-    static var defaultValue: CGSize = .zero
-
-    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
-        let next = nextValue()
-        if next != .zero {
-            value = next
-        }
-    }
-}
-
-struct PageIndicatorTrailingViewSizePreferenceKey: PreferenceKey {
+private struct PageIndicatorCollectionSizePreferenceKey: PreferenceKey {
     static var defaultValue: CGSize = .zero
 
     static func reduce(value: inout CGSize, nextValue: () -> CGSize) {

@@ -1,6 +1,52 @@
 import SwiftUI
 
-/// A Pager that shows multiple Pages with horizontal scrolling between them
+/// The PagerView is a container view that shows multiple pages by horizontal scrolling between them
+///
+/// The PagerView can scroll arbitrary content. It is initialized with a data collection and a view builder closure that is responsibile for
+/// constructing a view for each element of the data collection.
+///
+/// The PagerView's intrinsic content size is infinite in horizontal. In vertical direction the PagerViews just wraps around the content of
+/// that is provided by the view builder closure. If that closure constructs view of different height for the elements, then the PagerView
+/// presents it's content with a hight of the tallest element.
+///
+/// The following example shows an example where a Pager with 20 randomly colored Pages is setup.
+/// ```
+/// struct Item: Identifiable {
+///     var id: Int { self.number }
+///     let number: Int
+/// }
+///
+/// struct Test: View {
+///     let data = (0 ..< 20).map { Item(number: $0) }
+///
+///     var body: some View {
+///         PagerView(data) { element {
+///             Color.ramdom
+///         }
+///     }
+/// }
+///
+/// extension UIColor {
+///     static var random: UIColor {
+///         return UIColor(
+///             red: .random(in: 0...1),
+///             green: .random(in: 0...1),
+///             blue: .random(in: 0...1),
+///             alpha: 1
+///         )
+///     }
+/// }
+///
+/// extension Color {
+///     static var random: Color {
+///         return Color(
+///             red: .random(in: 0...1),
+///             green: .random(in: 0...1),
+///             blue: .random(in: 0...1)
+///         )
+///     }
+/// }
+/// ```
 public struct PagerView<
     Data: RandomAccessCollection,
     EachContent: View
@@ -10,7 +56,9 @@ public struct PagerView<
     private let data: Data
     private let content: ForEach<Data, Data.Element.ID, EachContent>
 
-    /// Creates a PagerView
+    /// A PagerView that allows scrolling through a collection
+    ///
+    /// The PagerView builds a view for each element in the data collection. And allows scrolling through the pages.
     ///
     /// For customization of the PagerView have a look into ``pageIndicator(location:style:)`` and
     /// ``pageIndicator(location:content:)``.
@@ -18,7 +66,7 @@ public struct PagerView<
     /// - Important: All Pages will be built up front. There is no lazy initialization of pages
     ///
     /// - Parameters:
-    ///   - data: Source Data. A View is built for each element using the content closure
+    ///   - data: Source Data with identifiable elements.
     ///   - content: ViewBuilder closure that builds a Page for a single element
     public init(
         _ data: Data,

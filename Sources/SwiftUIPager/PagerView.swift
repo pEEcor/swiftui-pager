@@ -83,7 +83,6 @@ public struct PagerView<
             }
             .clipped()
             .contentShape(Rectangle())
-            .background(Color.red)
         }
     }
     

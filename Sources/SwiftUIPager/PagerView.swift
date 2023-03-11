@@ -6,8 +6,6 @@ public struct PagerView<
     EachContent: View
 >: View where Data.Element: Identifiable {
     @State private var index: Int = 0
-    
-    @Environment(\.pageIndicator) private var pageIndicatorEnvironment
 
     private let data: Data
     private let content: ForEach<Data, Data.Element.ID, EachContent>
@@ -31,36 +29,60 @@ public struct PagerView<
     }
 
     public var body: some View {
-        VStack(spacing: 0) {
-            if case .top = self.pageIndicatorEnvironment.location {
-                self.pageIndicator
-            }
-            
-            Pager(pageCount: self.data.count, currentIndex: self.$index) {
+        PageIndicatorWrapper(index: self.$index, count: self.data.count) {
+            Pager(index: self.$index, count: self.data.count) {
                 self.content
             }
             .clipped()
             .contentShape(Rectangle())
             .background(Color.red)
-            
-            if case .bottom = self.pageIndicatorEnvironment.location {
-                self.pageIndicator
-            }
         }
     }
-
-    @ViewBuilder
-    private var pageIndicator: some View {
-        switch self.pageIndicatorEnvironment.kind {
-        case .default(let style):
-            PageIndicatorView(
-                count: self.data.count,
-                index: self.$index,
-                style: style
-            )
-            .padding(.vertical, 8)
-        case .custom(let pageIndicatorBuilder):
-            pageIndicatorBuilder(self.$index)
+    
+    private struct PageIndicatorWrapper<Content: View>: View {
+        @Environment(\.pageIndicator) private var pageIndicatorEnvironment
+        
+        private let index: Binding<Int>
+        private let count: Int
+        private let content: Content
+        
+        init(
+            index: Binding<Int>,
+            count: Int,
+            @ViewBuilder content: @escaping () -> Content
+        ) {
+            self.index = index
+            self.count = count
+            self.content = content()
+        }
+        
+        var body: some View {
+            VStack(spacing: 0) {
+                if case .top = self.pageIndicatorEnvironment.location {
+                    self.pageIndicator
+                }
+                
+                self.content
+                
+                if case .bottom = self.pageIndicatorEnvironment.location {
+                    self.pageIndicator
+                }
+            }
+        }
+        
+        @ViewBuilder
+        private var pageIndicator: some View {
+            switch self.pageIndicatorEnvironment.kind {
+            case .default(let style):
+                PageIndicatorView(
+                    count: self.count,
+                    index: self.index,
+                    style: style
+                )
+                .padding(.vertical, 8)
+            case .custom(let pageIndicatorBuilder):
+                pageIndicatorBuilder(self.index)
+            }
         }
     }
 }

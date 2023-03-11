@@ -1,26 +1,25 @@
 import SwiftUI
 
 struct Pager<Content: View>: View {
-    let pageCount: Int
-    @Binding var currentIndex: Int
-    let content: Content
+    @Binding var index: Int
     @GestureState private var translation: CGFloat = 0
     
-    /// Nicht selbst Verwenden! Verwende stattdessen ``PagerView``
-    ///
-    /// Baut den tatsächlichen Pager
+    let count: Int
+    let content: Content
+    
+    /// Builds the actual pager
     ///
     /// - Parameters:
-    ///   - pageCount: Anzahl der Seiten
-    ///   - currentIndex: Binding des aktuellen indexes
+    ///   - index: Binding des aktuellen indexes
+    ///   - count: Anzahl der Seiten
     ///   - content: ViewBuilder closure welches ALLE Page baut
     init(
-        pageCount: Int,
-        currentIndex: Binding<Int>,
+        index: Binding<Int>,
+        count: Int,
         @ViewBuilder content: () -> Content
     ) {
-        self.pageCount = pageCount
-        self._currentIndex = currentIndex
+        self.count = count
+        self._index = index
         self.content = content()
     }
     
@@ -30,9 +29,9 @@ struct Pager<Content: View>: View {
                 self.content.frame(width: geometry.size.width)
             }
             .frame(width: geometry.size.width, alignment: .leading)
-            .offset(x: -CGFloat(self.currentIndex) * geometry.size.width)
+            .offset(x: -CGFloat(self.index) * geometry.size.width)
             .offset(x: self.translation)
-            .animation(.interactiveSpring(), value: currentIndex)
+            .animation(.interactiveSpring(), value: index)
             .animation(.interactiveSpring(), value: translation)
             .gesture(
                 DragGesture()
@@ -41,8 +40,8 @@ struct Pager<Content: View>: View {
                     }
                     .onEnded { value in
                         let offset = value.translation.width / geometry.size.width
-                        let newIndex = (CGFloat(self.currentIndex) - offset).rounded()
-                        self.currentIndex = min(max(Int(newIndex), 0), self.pageCount - 1)
+                        let newIndex = (CGFloat(self.index) - offset).rounded()
+                        self.index = min(max(Int(newIndex), 0), self.count - 1)
                     }
             )
         }
@@ -65,7 +64,7 @@ struct PagerView_Builder_Previews: PreviewProvider {
         @State private var index = 0
         
         var body: some View {
-            Pager(pageCount: data.count, currentIndex: $index) {
+            Pager(index: $index, count: data.count) {
                 ForEach(data) { element in
                     switch element.number {
                     case 1:

@@ -9,8 +9,8 @@ import SwiftUI
 import SwiftUIPager
 
 let circles = PageIndicatorStyle(
-    plainStyle: .circle(radius: 30, color: .gray),
-    focusedStyle: .circle(radius: 60),
+    plainStyle: .circle(radius: 20, color: .gray),
+    focusedStyle: .circle(radius: 40),
     spacing: 20
 )
 
@@ -25,14 +25,56 @@ struct Item: Identifiable {
     let number: Int
 }
 
-struct ContentView: View {
-    @State var style: PageIndicatorStyle = circles
-    @State var location: PageIndicatorLocation = .top
+struct DemoView: View {
+    enum Scenario: Int, Hashable, CaseIterable, Identifiable {
+        case styled
+        case custom
+        
+        var id: Self { self }
+    }
+    
+    @State private var scenario: Scenario = .styled
+    
+    var body: some View {
+        PagerView(Scenario.allCases) { scenario in
+            switch scenario {
+            case .styled:
+                StyledView()
+            case .custom:
+                CustomView()
+            }
+        }
+        .pageIndicator(location: .top) { $index in
+            Picker(selection: $index) {
+                Text("Styled").tag(0)
+                Text("Custom").tag(1)
+            } label: {
+                Text("Label")
+            }
+            .pickerStyle(.segmented)
+            .padding()
+        }
+    }
+}
+
+struct StyledView: View {
+    @State var style: PageIndicatorStyle? = .default
+    @State var location: PageIndicatorLocation = .bottom
     
     let data = (0 ..< 10).map { Item(number: $0) }
     
     var body: some View {
         VStack {
+            PagerView(data) { element in
+                Color.random
+            }
+            .pageIndicator(location: self.location, style: self.style) { indicator in
+                indicator
+                    .padding(8)
+                    .background(Capsule())
+                    .padding(.top, 8)
+            }
+            
             HStack {
                 Menu("Location") {
                     Button("Top") {
@@ -45,6 +87,10 @@ struct ContentView: View {
                 }
                 
                 Menu("Styles") {
+                    Button("Default") {
+                        self.style = .default
+                    }
+                    
                     Button("Circles") {
                         self.style = circles
                     }
@@ -52,45 +98,47 @@ struct ContentView: View {
                     Button("Rects") {
                         self.style = rects
                     }
-                }
-            }
-            
-            PagerView(data) { element in
-                Color.random
-                    .frame(height: 400)
-            }
-            
-//            .pageIndicator(location: .top) { $index in
-//                HStack {
-//                    Button("Back", action: { index -= 1 })
-//                    Text("\(index)")
-//                    Button("Forward", action: { index += 1 })
-//                }
-//            }
-//            .pageIndicator(location: self.location, style: self.style)
-            .pageIndicator(location: location) { $index in
-                HStack {
-                    PageIndicatorView(
-                        count: data.count,
-                        index: $index,
-                        style: self.style
-                    )
-//                    .frame(width: 200)
-                    .background(Color.red)
                     
-                    Button("Weiter") {
-                        index += 1
+                    Button("None") {
+                        self.style = nil
                     }
                 }
             }
         }
-        .padding()
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
+struct CustomView: View {
+    
+    let data = (0 ..< 10).map { Item(number: $0) }
+    
+    var body: some View {
+        PagerView(data) { element in
+            Color.random
+        }
+        .padding(.top, 300)
+        .pageIndicator { $index in
+            HStack {
+                Button("Previous") {
+                    index -= 1
+                }
+                
+                Spacer()
+                
+                Button("Next") {
+                    index += 1
+                }
+            }
+            .padding(8)
+        }
+    }
+}
+
+struct DemoView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        NavigationStack {
+            DemoView()
+        }
     }
 }
 

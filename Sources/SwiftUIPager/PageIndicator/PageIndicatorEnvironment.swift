@@ -8,22 +8,22 @@
 import SwiftUI
 
 typealias PageIndicatorBuilder = (Binding<Int>) -> AnyView
+typealias BackgroundBuilder = (PageIndicatorView) -> AnyView
 
 struct PageIndicatorEnvironment {
-    
-    let kind: PageIndicatorKind
+    let kind: PageIndicatorKind?
     let location: PageIndicatorLocation
     
     static var `default`: Self {
         PageIndicatorEnvironment(
-            kind: .default(.default),
+            kind: .styled(.default, { _ in AnyView(EmptyView()) }),
             location: .bottom
         )
     }
 }
 
 enum PageIndicatorKind {
-    case `default`(PageIndicatorStyle)
+    case styled(PageIndicatorStyle, BackgroundBuilder)
     case custom(PageIndicatorBuilder)
 }
 
@@ -67,16 +67,27 @@ extension View {
     /// - Parameters:
     ///   - location: The location where the PageIndicator is placed
     ///   - style: The style of the default PageIndicator
-    public func pageIndicator(
+    public func pageIndicator<Background: View>(
         location: PageIndicatorLocation = .bottom,
-        style: PageIndicatorStyle = .default
+        style: PageIndicatorStyle? = nil,
+        @ViewBuilder background: @escaping (PageIndicatorView) -> Background = { _ in AnyView(EmptyView()) }
     ) -> some View {
-        self.environment(
-            \.pageIndicator,
-             PageIndicatorEnvironment(
-                kind: .default(style),
-                location: location
-             )
-        )
+        if let style = style {
+            return self.environment(
+                \.pageIndicator,
+                 PageIndicatorEnvironment(
+                    kind: .styled(style, { AnyView(background($0)) }),
+                    location: location
+                 )
+            )
+        } else {
+            return self.environment(
+                \.pageIndicator,
+                 PageIndicatorEnvironment(
+                    kind: nil,
+                    location: location
+                 )
+            )
+        }
     }
 }

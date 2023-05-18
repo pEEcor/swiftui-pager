@@ -84,8 +84,8 @@ public struct PagerView<
             Pager(index: self.$index, count: self.data.count) {
                 self.content
             }
-            .clipped()
             .contentShape(Rectangle())
+            .clipped()
         }
     }
     
@@ -111,9 +111,9 @@ public struct PagerView<
                 if case .top = self.pageIndicatorEnvironment.location {
                     self.pageIndicator
                 }
-                
+
                 self.content
-                
+
                 if case .bottom = self.pageIndicatorEnvironment.location {
                     self.pageIndicator
                 }
@@ -123,14 +123,15 @@ public struct PagerView<
         @ViewBuilder
         private var pageIndicator: some View {
             switch self.pageIndicatorEnvironment.kind {
-            case .default(let style):
-                PageIndicatorView(
-                    count: self.count,
-                    index: self.index,
-                    style: style
+            case let .some(.styled(style, background)):
+                background(
+                    PageIndicatorView(
+                        count: self.count,
+                        index: self.index,
+                        style: style
+                    )
                 )
-                .padding(.vertical, 8)
-            case .custom(let pageIndicatorBuilder):
+            case .some(.custom(let pageIndicatorBuilder)):
                 pageIndicatorBuilder(
                     Binding(
                         get: {
@@ -143,6 +144,8 @@ public struct PagerView<
                         }
                     )
                 )
+            case .none:
+                EmptyView()
             }
         }
     }
@@ -159,26 +162,9 @@ public struct PagerView<
 
         static var previews: some View {
             ContentView1()
-            ContentView2()
         }
 
         struct ContentView1: View {
-            var body: some View {
-                PagerView(data) { element in
-                    switch element.number {
-                    case 1:
-                        Color.blue
-                    case 2:
-                        Color.red
-                    default:
-                        Color.green
-                    }
-                }
-                .pageIndicator(location: .top)
-            }
-        }
-
-        struct ContentView2: View {
             var body: some View {
                 PagerView(data) { element in
                     switch element.number {

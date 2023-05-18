@@ -11,7 +11,7 @@ import SwiftUI
 struct SwiftUIPagerApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            DemoView()
         }
     }
 }

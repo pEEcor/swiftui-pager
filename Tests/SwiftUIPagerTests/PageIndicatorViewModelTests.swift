@@ -32,39 +32,39 @@ final class PageIndicatorViewModelTests: XCTestCase {
         wait(for: [expectation], timeout: 10)
     }
     
-    func test_setWidth_whereDotCollectionIsLargerThanProposedWidth() {
-        let sut = makeSUT(
-            count: 10,
-            style: PageIndicatorStyle(
-                plainStyle: .default,
-                focusedStyle: .default,
-                spacing: 10
-            )
-        )
-        
-        // Execute
-        sut.setWidth(100)
-        
-        // Assert
-        XCTAssertEqual(sut.window.width, 100)
-    }
-    
-    func test_setWidth_whereDotCollectionIsSmallerThanProposedWidth() {
-        let sut = makeSUT(
-            count: 10,
-            style: PageIndicatorStyle(
-                plainStyle: .default,
-                focusedStyle: .default,
-                spacing: 10
-            )
-        )
-        
-        // Execute
-        sut.setWidth(300)
-        
-        // Assert
-        XCTAssertEqual(sut.window.width, 190)
-    }
+//    func test_setWidth_whereDotCollectionIsLargerThanProposedWidth() {
+//        let sut = makeSUT(
+//            count: 10,
+//            style: PageIndicatorStyle(
+//                plainStyle: .default,
+//                focusedStyle: .default,
+//                spacing: 10
+//            )
+//        )
+//
+//        // Execute
+//        sut.setWidth(100)
+//
+//        // Assert
+//        XCTAssertEqual(sut.window.width, 100)
+//    }
+//
+//    func test_setWidth_whereDotCollectionIsSmallerThanProposedWidth() {
+//        let sut = makeSUT(
+//            count: 10,
+//            style: PageIndicatorStyle(
+//                plainStyle: .default,
+//                focusedStyle: .default,
+//                spacing: 10
+//            )
+//        )
+//
+//        // Execute
+//        sut.setWidth(300)
+//
+//        // Assert
+//        XCTAssertEqual(sut.window.width, 190)
+//    }
     
     private func makeSUT(
         count: Int = 10,

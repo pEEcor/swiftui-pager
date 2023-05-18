@@ -189,15 +189,27 @@ private struct PageIndicatorSizePreferenceKey: PreferenceKey {
                     PageIndicatorView(
                         count: 10,
                         index: $index,
+                        style: .default
+                    )
+                    .padding(8)
+                    .background(
+                        Capsule()
+                            .foregroundColor(Color(uiColor: .systemGray2))
+                            .opacity(0.5)
+                    )
+                    
+                    PageIndicatorView(
+                        count: 10,
+                        index: $index,
                         style: PageIndicatorStyle(
-                            plainStyle: .circle(radius: 30, color: .gray),
+                            plainStyle: .circle(radius: 30, color: Color(uiColor: .systemGray)),
                             focusedStyle: .circle(radius: 60),
                             spacing: 10
                         )
                     )
-//                    .frame(width: 300)
+                    .frame(width: 250)
+                    .background(Color.green)
                 }
-                .background(Color.green)
             }
         }
     }

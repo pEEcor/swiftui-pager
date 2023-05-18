@@ -59,7 +59,6 @@ public struct PageIndicatorView: View {
         self.pageIndicator()
             .readSize(key: PageIndicatorSizePreferenceKey.self)
             .onPreferenceChange(PageIndicatorSizePreferenceKey.self) { size in
-                print("available size: \(size)")
                 self.viewModel.setWidth(size.width)
             }
             // Propagate specific changes to view model manually since it's held in a state object
@@ -175,17 +174,6 @@ private struct PageIndicatorSizePreferenceKey: PreferenceKey {
     }
 }
 
-private struct PageIndicatorCollectionSizePreferenceKey: PreferenceKey {
-    static var defaultValue: CGSize = .zero
-
-    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
-        let next = nextValue()
-        if next != .zero {
-            value = next
-        }
-    }
-}
-
 #if DEBUG
     struct PagerIndicator_Previews: PreviewProvider {
         static var previews: some View {
@@ -207,7 +195,7 @@ private struct PageIndicatorCollectionSizePreferenceKey: PreferenceKey {
                             spacing: 10
                         )
                     )
-//                    .frame(width: 100)
+                    .frame(width: 100)
                 }
                 .background(Color.green)
             }

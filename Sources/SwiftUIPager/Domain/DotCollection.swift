@@ -50,7 +50,6 @@ struct DotCollection {
     private var dots: [Dot]
     private let style: PageIndicatorStyle
     
-    
     init(
         count: Int,
         style: PageIndicatorStyle
@@ -117,13 +116,14 @@ struct DotCollection {
             return false
         }
         
-        return min >= window.min && max <= window.max
+        return min <= window.min && max >= window.max
     }
     
     /// Selects the dot with the given index
     ///
-    /// If the given index is part of the collection of dots, then the dot with the given index gets selected and the current selection gets
-    /// canceled. The selections stays unchanged if the index is not part of the collection.
+    /// If the given index is part of the collection of dots, then the dot with the given index
+    /// gets selected and the current selection gets canceled. The selections stays unchanged if
+    /// the index is not part of the collection.
     /// - Parameter index: Index of the dot that should be selected
     mutating func select(index: Int) {
         // Abort if index is invalid
@@ -138,6 +138,43 @@ struct DotCollection {
         
         // Select dot with given index
         self.dots[index].select()
+        
+        if !self.isSelectedDotVisible(in: self.window) {
+            switch self.getLocationOf(index: index) {
+            case .some(.beforeStart):
+                guard let leadingOffset = self.offset(of: index) else {
+                    return
+                }
+                
+                self.window.setOffset(to: -leadingOffset)
+            case .some(.behindEnd):
+                guard let trailingOffset = self.offset(of: index, includeDotWidth: true) else {
+                    return
+                }
+                
+                self.window.setOffset(to: self.window.width - trailingOffset)
+            case .none:
+                return
+            }
+        }
+    }
+    
+    private func getLocationOf(index: Int) -> FocusedArea? {
+        guard let leadingOffset = self.offset(of: index) else {
+            return nil
+        }
+        
+        guard let trailingOffset = self.offset(of: index, includeDotWidth: true) else {
+            return nil
+        }
+        
+        if leadingOffset + self.window.offset <= 0 {
+            return .beforeStart
+        } else if (self.window.width - self.window.offset) - trailingOffset <= 0 {
+            return .behindEnd
+        } else {
+            return nil
+        }
     }
     
     /// Selects the dot at the given index
@@ -190,7 +227,7 @@ struct DotCollection {
         return nil
     }
     
-    func offset(of index: Int) -> Double? {
+    func offset(of index: Int, includeDotWidth: Bool = false) -> Double? {
         // Ensure that index exists
         guard index >= 0 && index < self.dots.count else {
             return nil
@@ -200,7 +237,7 @@ struct DotCollection {
         
         for (i, dot) in self.dots.enumerated() {
             if index == i {
-                return offset
+                return includeDotWidth ? offset + dot.width : offset
             } else {
                 offset += dot.width + self.style.spacing
             }

@@ -1,11 +1,7 @@
 import SwiftUI
 
 /// A PageIndicator that shows a visual representation of which page is currenlty focused by a
-/// pager. Usually not directly required.
-///
-/// This is the default page indicator that is used by the pager. It my be styled using
-/// ``pageIndicator(location:style:)``. If additional customization is required. This view may be
-/// further decorated and injected into the ``PagerView`` using ``pageIndicator(location:content:)``
+/// pager.
 ///
 /// The PageIndicatorView allows multiple interactions that modify the state of a Pager. Usually, a
 /// PageIndicator is showing simple dots, each representing a Page of the associated Pager.
@@ -13,6 +9,15 @@ import SwiftUI
 /// scrolling of the dots when the Pager has too much content for the PageIndicatorView to show a
 /// dot for each page. In this case the dots can be scrolled when performing a drag gesture that
 /// exceeds the PageIndicatorView's bounds.
+///
+/// The PageIndicatorView is independent from any Pager, it can be used for any kind of page
+/// representation through it's index binding. However, if used with the ``PagerView`` that comes
+/// with this library, there are dedicated view modifiers, that provide convienient access to
+/// customize the PageIndicator.
+///
+/// The page indicator can be styled using ``pageIndicator(location:style:background:)`` if
+/// additional customization is required. If you need to inject a completely custom page indicator,
+/// there is also ``pageIndicator(location:content:)``.
 public struct PageIndicatorView: View {
 
     // View model for the page indicator. By using a state object, the view model will be

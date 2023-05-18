@@ -12,9 +12,6 @@ public struct PageIndicatorStyle: Equatable {
     /// The spacing between dots
     let spacing: CGFloat
     
-    /// The max width that the page indicator should have
-    let width: PageIndicatorWidth
-    
     /// Creates a style definition for a page indicator
     /// - Parameters:
     ///   - plainStyle: Style of a single page indicator dot
@@ -23,13 +20,11 @@ public struct PageIndicatorStyle: Equatable {
     public init(
         plainStyle: PageIndicatorDotStyle = .default,
         focusedStyle: PageIndicatorDotStyle = .default,
-        spacing: CGFloat = 10,
-        width: PageIndicatorWidth = .infinite
+        spacing: CGFloat = 10
     ) {
         self.plain = plainStyle
         self.focused = focusedStyle
         self.spacing = spacing
-        self.width = width
     }
     
     /// The default style using sensible default values
@@ -37,19 +32,9 @@ public struct PageIndicatorStyle: Equatable {
         PageIndicatorStyle(
             plainStyle: .circle(radius: 8, color: .gray.opacity(0.7)),
             focusedStyle: .circle(radius: 10, color: .white),
-            spacing: 8,
-            width: .infinite
+            spacing: 8
         )
     }
-}
-
-/// Width definition of a page indicator
-public enum PageIndicatorWidth: Equatable {
-    /// Infinite width (page indicator will take as much space horizontally as possible)
-    case infinite
-    
-    /// Custom non infinite width
-    case constant(CGFloat)
 }
 
 /// Style definition for a single page indicator dot

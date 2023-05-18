@@ -1,15 +1,18 @@
 import SwiftUI
 
-/// A PageIndicator that shows a visual representation of which page is currenlty focused by a pager. Usually not directly required.
+/// A PageIndicator that shows a visual representation of which page is currenlty focused by a
+/// pager. Usually not directly required.
 ///
-/// This is the default page indicator that is used by the pager. It my be styled using ``pageIndicator(location:style:)``.
-/// If additional customization is required. This view may be further decorated and injected into the ``PagerView`` using
-/// ``pageIndicator(location:content:)``.
+/// This is the default page indicator that is used by the pager. It my be styled using
+/// ``pageIndicator(location:style:)``. If additional customization is required. This view may be
+/// further decorated and injected into the ``PagerView`` using ``pageIndicator(location:content:)``
 ///
-/// The PageIndicatorView allows multiple interactions that modify the state of a Pager. Usually, a PageIndicator is showing simple
-/// dots, each representing a Page of the associated Pager. Selecting such a dot focuses the Page in the Pager. Additionally, the
-/// PageIndicatorView enables scrolling of the dots when the Pager has too much content for the PageIndicatorView to show a dot
-/// for each page. In this case the dots can be scrolled when performing a drag gesture that exceeds the PageIndicatorView's bounds.
+/// The PageIndicatorView allows multiple interactions that modify the state of a Pager. Usually, a
+/// PageIndicator is showing simple dots, each representing a Page of the associated Pager.
+/// Selecting such a dot focuses the Page in the Pager. Additionally, the PageIndicatorView enables
+/// scrolling of the dots when the Pager has too much content for the PageIndicatorView to show a
+/// dot for each page. In this case the dots can be scrolled when performing a drag gesture that
+/// exceeds the PageIndicatorView's bounds.
 public struct PageIndicatorView: View {
 
     // View model for the page indicator. By using a state object, the view model will be
@@ -26,9 +29,10 @@ public struct PageIndicatorView: View {
 
     /// Creates PageIndicatorView, typlically for manual customization.
     ///
-    /// You probably don't want to use this directly. The PageIndicator of a PagerView is customizable using
-    /// a dedicated view modifier. See ``pageIndicator(location:style:)``. However, the PageIndicator may be decorated
-    /// with other Views and than injected into the PagerView as a custom PageIndicator.
+    /// You probably don't want to use this directly. The PageIndicator of a PagerView is
+    /// customizable using a dedicated view modifier. See ``pageIndicator(location:style:)``.
+    /// However, the PageIndicator may be decorated with other Views and than injected into the
+    /// PagerView as a custom PageIndicator.
     ///
     /// - Parameters:
     ///   - count: Total count of pages
@@ -41,62 +45,60 @@ public struct PageIndicatorView: View {
     ) {
         self._viewModel = StateObject(
             wrappedValue: PageIndicatorViewModel(
-                initialCount: count,
+                count: count,
                 style: style
             )
         )
+        
         self.count = count
         self.index = index
         self.style = style
     }
 
     public var body: some View {
-        HStack {
-            self.pageIndicator()
-        }
-        .frame(maxWidth: .infinity)
-        .background(
-            Color.clear
-                .readSize(key: PageIndicatorSizePreferenceKey.self)
-        )
-        .onPreferenceChange(PageIndicatorSizePreferenceKey.self) {
-            viewModel.setWidth($0.width)
-        }
-        // Propagate specific changes to view model manually since it's held in a state object
-        .onChange(of: self.count, perform: self.viewModel.setCount(_:))
-        .onChange(of: self.style, perform: self.viewModel.setStyle(_:))
+        self.pageIndicator()
+            .readSize(key: PageIndicatorSizePreferenceKey.self)
+            .onPreferenceChange(PageIndicatorSizePreferenceKey.self) { size in
+                print("available size: \(size)")
+                self.viewModel.setWidth(size.width)
+            }
+            // Propagate specific changes to view model manually since it's held in a state object
+            .onChange(of: self.count, perform: self.viewModel.setCount(_:))
+            // Propagate style changes to view model
+            .onChange(of: self.style, perform: self.viewModel.setStyle(_:))
+            // Propagate index change to view model
+            .onChange(of: self.index.wrappedValue, perform: self.viewModel.setIndex(_:))
     }
-
+    
     @ViewBuilder
     private func pageIndicator() -> some View {
-        HStack(spacing: 10) {
+        GeometryReader { proxy in
             HStack(spacing: self.viewModel.style.spacing) {
-                ForEach(0 ..< self.viewModel.count, id: \.self) { index in
+                ForEach(0 ..< self.viewModel.dots.count, id: \.self) { index in
                     Indicator(style: self.style(for: index)) {
                         self.viewModel.setIndex(index)
                     }
                     .foregroundColor(self.foregroundColor(for: index))
                 }
             }
-            .readSize(key: PageIndicatorCollectionSizePreferenceKey.self)
-            .offset(
-                CGSize(
-                    width: self.viewModel.baseOffset + self.viewModel.offset,
-                    height: 0
-                )
+        }
+        .frame(
+            maxWidth: self.viewModel.dots.width,
+            maxHeight: self.viewModel.dots.height
+        )
+        .offset(
+            CGSize(
+                width: self.viewModel.window.offset,
+                height: 0
             )
-        }
-        .onPreferenceChange(PageIndicatorCollectionSizePreferenceKey.self) { size in
-            self.viewModel.setCollectionSize(size: size)
-        }
-        // Propagiere Index Änderungen von ViewModel über Binding zum Parent View
-        .onReceive(self.viewModel.$index) { index in
+        )
+        // Propagate index changes from view model via binding to parent
+        .onReceive(self.viewModel.$dots) { index in
+            guard let index = self.viewModel.dots.selectedIndex else {
+                return
+            }
             self.index.wrappedValue = index
         }
-        // Propagiere Index Änderungen von Binding ans ViewModel
-        .onChange(of: self.index.wrappedValue, perform: self.viewModel.setIndex(_:))
-        .frame(width: self.viewModel.indicatorWidth)
-        .contentShape(Capsule())
         .clipped()
         .gesture(
             DragGesture(minimumDistance: 1)
@@ -114,7 +116,7 @@ public struct PageIndicatorView: View {
     }
 
     private func foregroundColor(for index: Int) -> Color {
-        if index == self.viewModel.index {
+        if index == self.viewModel.dots.selectedIndex {
             return self.viewModel.style.focused.color
         } else {
             return self.viewModel.style.plain.color
@@ -122,7 +124,7 @@ public struct PageIndicatorView: View {
     }
     
     private func style(for index: Int) -> PageIndicatorDotStyle {
-        if index == self.viewModel.index {
+        if index == self.viewModel.dots.selectedIndex {
             return self.viewModel.style.focused
         } else {
             return self.viewModel.style.plain
@@ -197,7 +199,7 @@ private struct PageIndicatorCollectionSizePreferenceKey: PreferenceKey {
             var body: some View {
                 VStack(spacing: 64) {
                     PageIndicatorView(
-                        count: 20,
+                        count: 30,
                         index: $index,
                         style: PageIndicatorStyle(
                             plainStyle: .circle(radius: 10, color: .gray),
@@ -205,7 +207,7 @@ private struct PageIndicatorCollectionSizePreferenceKey: PreferenceKey {
                             spacing: 10
                         )
                     )
-                    .frame(width: 100)
+//                    .frame(width: 100)
                 }
                 .background(Color.green)
             }

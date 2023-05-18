@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "swiftui-pager",
-    platforms: [.iOS(.v14), .macOS(.v13)],
+    platforms: [.iOS(.v15), .macOS(.v13)],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
@@ -28,8 +28,11 @@ let package = Package(
             ]
         ),
         .testTarget(
-            name: "PagerTests",
-            dependencies: ["SwiftUIPager"]
+            name: "SwiftUIPagerTests",
+            dependencies: [
+                .target(name: "SwiftUIPager"),
+                .product(name: "CombineSchedulers", package: "combine-schedulers")
+            ]
         ),
     ]
 )

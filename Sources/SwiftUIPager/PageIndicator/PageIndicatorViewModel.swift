@@ -14,18 +14,12 @@ class PageIndicatorViewModel: ObservableObject {
 
     /// Distance that is rolled per roll frame
     static var ROLL_DISTANCE_FACTOR = Double(10)
-
-    /// Offset that is applied to the dot collection
-    @Published private(set) var offset: CGFloat = 0
-
-    /// Total size of the dot collection. This can be larger that the actual page indicator
-    @Published private(set) var collectionSize: CGSize = .zero
-
-    /// Index of the selected dot/page
-    @Published var index: Int = 0
-
-    /// Total count of dots/pages
-    @Published private(set) var count: Int
+    
+    /// Representation of all dots of the indicator
+    @Published private(set) var dots: DotCollection
+    
+    /// The window over the dots that is currently visible
+    @Published private(set) var window: Window
 
     /// The style options for the page indicator
     @Published private(set) var style: PageIndicatorStyle
@@ -33,58 +27,36 @@ class PageIndicatorViewModel: ObservableObject {
     private(set) var hasStartedDrag = false
     private(set) var rollTimer: Timer?
     
-    /// The Width that got proposed to the PageIndicator View
-    private(set) var width: CGFloat = .zero
-    
     private let scheduler: AnySchedulerOf<DispatchQueue>
     
-    /// Offset that needs to be applied such that needs to be applied to the dot collection such that the leftmost dot is aligned with
-    /// the left edge of the page indicator
+    /// Offset that needs to be applied to the dot collection such that the leftmost dot is aligned
+    /// with the left edge of the page indicator
     var baseOffset: CGFloat {
-        guard case let .constant(maxWidth) = self.style.width else {
-            return 0
-        }
-        
-        if self.collectionSize.width > maxWidth {
-            return (self.collectionSize.width - maxWidth) / 2
-        } else {
-            return 0
-        }
+        (self.dots.width - self.window.width) / 2
     }
 
-    /// Actual width of the indicator, taking into account the styling information as well as the proposed size
-    var indicatorWidth: CGFloat {
-        if case let .constant(maxWidth) = self.style.width {
-            if maxWidth > self.width {
-                return self.width
-            } else {
-                return maxWidth
-            }
-        } else {
-            if self.collectionSize.width > self.width {
-                return self.width
-            } else {
-                return self.collectionSize.width
-            }
-        }
-    }
-
-    /// Width of a segment. A segment is defined by the width of a dot + the spacing between two dots.
+    /// Width of a segment. A segment is defined by the width of a dot + the spacing between two
+    /// dots.
     var segmentWidth: CGFloat {
         self.style.plain.shape.width + self.style.spacing
     }
 
-    /// Create PageIndicatorViewModel
+    /// Creates PageIndicatorViewModel
     ///
-    /// - Parameter width: Width that was proposed to the PageIndicatorView upon initialization
+    /// - Parameters:
+    ///   - count: The initail count of page indicator dots
+    ///   - style: The initial style definition for the page indicator
+    ///   - scheduler: A scheduler used to perform the automated scrolling when scrubbing
     init(
-        initialCount: Int = 0,
-        style: PageIndicatorStyle,
+        count: Int = 0,
+        style: PageIndicatorStyle = .default,
         scheduler: AnySchedulerOf<DispatchQueue> = AnyScheduler.main
     ) {
-        self.count = initialCount
         self.style = style
         self.scheduler = scheduler
+        
+        self.dots = DotCollection(count: count, style: style)
+        self.window = Window(offset: .zero, width: .zero)
     }
 
     /// Handles a Drag Gesture
@@ -102,9 +74,10 @@ class PageIndicatorViewModel: ObservableObject {
 
         // If PageIndicatorView is smaller than collection size, roll when drag gesture focuses
         // area outside of the indicator
-        if self.collectionSize.width > self.indicatorWidth {
+        if self.dots.width > self.window.width {
             // Determine if drag currently focuses start or end area and perform roll
             let focusedArea = self.calcFocusedArea(hOffset: hOffset)
+            
             if let focusedArea = focusedArea {
                 self.roll(focusedArea: focusedArea)
             } else {
@@ -125,7 +98,7 @@ class PageIndicatorViewModel: ObservableObject {
             // Dispatch UI changes to main thread
             self.scheduler.schedule { [weak self] in
                 withAnimation {
-                    self?.index = index
+                    self?.dots.select(index: index)
                 }
             }
         }
@@ -138,22 +111,20 @@ class PageIndicatorViewModel: ObservableObject {
         self.stopRoll()
     }
 
-    /// Sets the size of the dot collection
-    func setCollectionSize(size: CGSize) {
-        self.collectionSize = size
-    }
-
     /// Sets the current index
     func setIndex(_ index: Int) {
-        guard index >= 0 && index < self.count else { return }
+        guard index >= 0 && index < self.dots.count else { return }
+        
+        // Get offset to make index visible
+        
         withAnimation {
-            self.index = index
+            self.dots.select(index: index)
         }
     }
 
     /// Sets the total count of pages/dots
     func setCount(_ count: Int) {
-        self.count = count
+        self.dots.change(count: count)
     }
     
     /// Sets a new style
@@ -164,7 +135,28 @@ class PageIndicatorViewModel: ObservableObject {
     
     /// Sets the width that is proposed by the enclosing view
     func setWidth(_ width: CGFloat) {
-        self.width = width
+        let width = self.calcIndicatorWidth(from: width)
+        
+        // Set new Window
+        self.window.setWidth(to: width)
+    }
+    
+    /// Calculates the actual page indicator width
+    ///
+    /// - Returns: Actual page indicator width
+    private func calcIndicatorWidth(from proposedWidth: Double) -> Double {
+        if self.dots.width > proposedWidth {
+            return proposedWidth
+        } else {
+            return self.dots.width
+        }
+    }
+    
+    /// Calculates if the dot with the given index is visible
+    /// - Parameter index: The index to check
+    /// - Returns: True if dot of index is visible, otherwise false
+    private func isVisible(index: Int) -> Bool {
+        fatalError("Unimplemented")
     }
 
     /// Calculates the index of the dot that is focused by the given offset
@@ -172,22 +164,22 @@ class PageIndicatorViewModel: ObservableObject {
     /// - Parameter hOffset: Offset within ``self.indicatorWidth``
     /// - Returns: Index of the focused dot or nil if space between dots is focused
     private func calcIndexForOffset(hOffset: CGFloat) -> Int? {
-        if hOffset >= 0 && hOffset <= self.indicatorWidth {
+        if hOffset >= 0 && hOffset <= self.window.width {
             // Determine segment
-            let segment = Int(hOffset - self.offset) / Int(self.segmentWidth)
+            let segment = Int(hOffset - self.window.offset) / Int(self.segmentWidth)
 
             // Determine position within segment
             let pos = hOffset - (CGFloat(segment) * self.segmentWidth)
 
             if pos < self.style.plain.shape.width {
-                return segment > self.count - 1 ? self.count - 1 : segment
+                return segment > self.dots.count - 1 ? self.dots.count - 1 : segment
             } else {
                 return nil
             }
         } else if hOffset < 0 {
             return self.calcIndexForOffset(hOffset: 0)
-        } else if hOffset > self.indicatorWidth {
-            return self.calcIndexForOffset(hOffset: self.indicatorWidth)
+        } else if hOffset > self.window.width {
+            return self.calcIndexForOffset(hOffset: self.window.width)
         } else {
             return nil
         }
@@ -200,7 +192,7 @@ class PageIndicatorViewModel: ObservableObject {
     private func calcFocusedArea(hOffset: CGFloat) -> FocusedArea? {
         if hOffset < 0 {
             return .beforeStart
-        } else if hOffset > self.indicatorWidth {
+        } else if hOffset > self.window.width {
             return .behindEnd
         } else {
             return nil
@@ -226,7 +218,7 @@ class PageIndicatorViewModel: ObservableObject {
             let newOffset = {
                 switch focusedArea {
                 case .beforeStart:
-                    var newOffset = self.offset + slice
+                    var newOffset = self.window.offset + slice
 
                     if newOffset > 0 {
                         newOffset = 0
@@ -234,10 +226,10 @@ class PageIndicatorViewModel: ObservableObject {
 
                     return newOffset
                 case .behindEnd:
-                    var newOffset = self.offset - slice
+                    var newOffset = self.window.offset - slice
 
-                    if newOffset < self.indicatorWidth - self.collectionSize.width {
-                        newOffset = self.indicatorWidth - self.collectionSize.width
+                    if newOffset < self.window.width - self.dots.width {
+                        newOffset = self.window.width - self.dots.width
                     }
 
                     return newOffset
@@ -246,7 +238,7 @@ class PageIndicatorViewModel: ObservableObject {
 
             // Dispatch UI changes to main thread
             self.scheduler.schedule { [weak self] in
-                self?.offset = newOffset
+                self?.window.setOffset(to: newOffset)
             }
             
             // Determine the index that is focused by the drag gesture
@@ -255,7 +247,7 @@ class PageIndicatorViewModel: ObservableObject {
                 case .beforeStart:
                     return CGFloat(0)
                 case .behindEnd:
-                    return self.indicatorWidth
+                    return self.window.width
                 }
             }()
             
@@ -267,5 +259,7 @@ class PageIndicatorViewModel: ObservableObject {
     private func stopRoll() {
         self.rollTimer?.invalidate()
         self.rollTimer = nil
+        
+        
     }
 }

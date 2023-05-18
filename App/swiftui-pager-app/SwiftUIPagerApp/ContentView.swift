@@ -11,15 +11,13 @@ import SwiftUIPager
 let circles = PageIndicatorStyle(
     plainStyle: .circle(radius: 20, color: .gray),
     focusedStyle: .circle(radius: 30),
-    spacing: 20,
-    width: .constant(250)
+    spacing: 20
 )
 
 let rects = PageIndicatorStyle(
     plainStyle: .rect(size: CGSize(width: 20, height: 20), color: .gray),
     focusedStyle: .rect(size: CGSize(width: 80, height: 20)),
-    spacing: 20,
-    width: .constant(250)
+    spacing: 20
 )
 
 struct Item: Identifiable {
@@ -31,7 +29,7 @@ struct ContentView: View {
     @State var style: PageIndicatorStyle = circles
     @State var location: PageIndicatorLocation = .top
     
-    let data = (0 ..< 20).map { Item(number: $0) }
+    let data = (0 ..< 3).map { Item(number: $0) }
     
     var body: some View {
         VStack {
@@ -77,6 +75,8 @@ struct ContentView: View {
                         index: $index,
                         style: self.style
                     )
+//                    .frame(width: 200)
+                    .background(Color.red)
                     
                     Button("Weiter") {
                         index += 1
@@ -84,6 +84,7 @@ struct ContentView: View {
                 }
             }
         }
+        .padding()
     }
 }
 

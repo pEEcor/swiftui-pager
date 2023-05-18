@@ -35,6 +35,21 @@ struct Window {
         self.width = width
     }
     
+    /// For a given offset this method returns the location that is targeted around the window.
+    ///
+    /// If an area inside the window is focused, `nil` is retured.
+    /// - Parameter offset: The offset to get location for
+    /// - Returns: Location that is targeted by offset
+    func focusedArea(for offset: Double) -> FocusedArea? {
+        if self.offset - offset < 0 {
+            return .beforeStart
+        } else if self.offset - offset > 0 {
+            return .behindEnd
+        } else {
+            return nil
+        }
+    }
+    
     /// Moves the Window
     ///
     /// - Parameter offset: The relative offset by which the window should be moved

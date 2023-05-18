@@ -97,40 +97,6 @@ struct DotCollection {
         return offset + (includeWidth ? selectedDot.width : 0)
     }
     
-    func calcOffsetOfSelectedDot(
-        at edge: Edge,
-        in window: Window
-    ) -> Double? {
-        // Make sure a dot is selected
-        guard let _ = self.selectedIndex else {
-            return nil
-        }
-        
-        let includeDotWidth = {
-            switch edge {
-            case .leading:
-                return false
-            case .trailing:
-                return true
-            }
-        }()
-        
-        guard let offset = self.getOffsetToSelectedDot(includeWidth: includeDotWidth) else {
-            return nil
-        }
-        
-        switch edge {
-        case .leading where offset + window.width > self.width:
-            return self.width - window.width
-        case .trailing where offset < window.width:
-            return 0
-        case .leading:
-            return offset
-        case .trailing:
-            return self.width - window.width
-        }
-    }
-    
     /// Returns true if selected dot is fully visibile inside the given window
     /// - Parameter window: The window that describes the visible section of the page indicator
     /// dot collection
@@ -195,7 +161,6 @@ struct DotCollection {
             return nil
         }
         
-        
         var tmp: Double = 0
 
         for (index, dot) in dots.enumerated() {
@@ -207,6 +172,25 @@ struct DotCollection {
             }
             
             tmp = x2 + self.style.spacing
+        }
+        
+        return nil
+    }
+    
+    func offset(of index: Int) -> Double? {
+        // Ensure that index exists
+        guard index >= 0 && index < self.dots.count else {
+            return nil
+        }
+        
+        var offset: Double = 0
+        
+        for (i, dot) in self.dots.enumerated() {
+            if index == i {
+                return offset
+            } else {
+                offset += dot.width + self.style.spacing
+            }
         }
         
         return nil

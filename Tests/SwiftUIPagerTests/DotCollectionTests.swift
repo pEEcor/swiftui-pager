@@ -155,66 +155,6 @@ final class DotCollectionTests: XCTestCase {
         XCTAssertFalse(sut.isSelectedDotVisible(in: Window(offset: 61, width: 100)))
     }
     
-    func test_calcOffsetOfSelectedDot() {
-        var sut = makeSUT(
-            count: 10,
-            style: PageIndicatorStyle(
-                plainStyle: .rect(size: CGSize(width: 10, height: 10)),
-                focusedStyle: .default,
-                spacing: 10
-            )
-        )
-        
-        // Assert: Should return collection size - indicator size (190 - 100)
-        sut.select(index: 9)
-        XCTAssertEqual(
-            sut.calcOffsetOfSelectedDot(
-                at: .leading,
-                in: Window(offset: 0, width: 100)
-            ),
-            90
-        )
-        
-        // Assert: Should return 20 when index is 1 and edge is leading
-        sut.select(index: 1)
-        XCTAssertEqual(
-            sut.calcOffsetOfSelectedDot(
-                at: .leading,
-                in: Window(offset: 0, width: 100)
-            ),
-            20
-        )
-        
-        // Assert: Should return 0 when index is 1 and edge is trailing
-        sut.select(index: 1)
-        XCTAssertEqual(
-            sut.calcOffsetOfSelectedDot(
-                at: .trailing,
-                in: Window(offset: 0, width: 100)
-            ),
-            0
-        )
-        
-        // Assert: Should return
-        sut.select(index: 9)
-        XCTAssertEqual(
-            sut.calcOffsetOfSelectedDot(
-                at: .trailing,
-                in: Window(offset: 0, width: 100)
-            ),
-            90
-        )
-        
-        // Assert: Should return nil when no dot is selected
-        sut.change(count: 0)
-        XCTAssertNil(
-            sut.calcOffsetOfSelectedDot(
-                at: .leading,
-                in: Window(offset: 0, width: 100)
-            )
-        )
-    }
-    
     private func makeSUT(
         count: Int = 10,
         style: PageIndicatorStyle = .default

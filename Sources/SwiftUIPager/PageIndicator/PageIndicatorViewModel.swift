@@ -2,18 +2,18 @@ import SwiftUI
 import Combine
 import CombineSchedulers
 
-class PageIndicatorViewModel: ObservableObject {
-    /// Location around Indicator that may be focused
-    private enum FocusedArea {
-        case beforeStart
-        case behindEnd
-    }
+/// Location around Indicator that may be focused
+enum FocusedArea {
+    case beforeStart
+    case behindEnd
+}
 
+class PageIndicatorViewModel: ObservableObject {
     /// Rate that is used to automatically roll the dot collection
     static var ROLL_UPDATE_RATE = Double(1) / Double(120)
 
     /// Distance that is rolled per roll frame
-    static var ROLL_DISTANCE_FACTOR = Double(10)
+    static var ROLL_DISTANCE_FACTOR = Double(20)
     
     /// Representation of all dots of the indicator
     @Published private(set) var dots: DotCollection
@@ -87,6 +87,10 @@ class PageIndicatorViewModel: ObservableObject {
         
         withAnimation {
             self.dots.select(index: index)
+            
+            if !self.dots.isSelectedDotVisible(in: self.window) {
+                
+            }
         }
     }
 
@@ -102,11 +106,37 @@ class PageIndicatorViewModel: ObservableObject {
     }
     
     /// Sets the width that is proposed by the enclosing view
-    func setWidth(_ width: CGFloat) {
+    /// - Parameter width: The available width for the page indicator view
+    func setWidth(_ width: Double) {
         let width = self.calcIndicatorWidth(from: width)
         
         // Set new Window
         self.window.setWidth(to: width)
+    }
+    
+    /// Sets the offset of the window and adjusts the selected index accordingly such that a
+    /// selected dot is always visible.
+    /// - Parameter offset: The window offset
+    func setOffset(to offset: Double) {
+        // If an area outside the window is focused, the selected index may need to be updated
+        if let focusedArea = self.window.focusedArea(for: offset) {
+            // Determine the index that is focused by the drag gesture
+            let offset = {
+                switch focusedArea {
+                case .beforeStart:
+                    return Double(0)
+                case .behindEnd:
+                    return self.window.width
+                }
+            }()
+            
+            withAnimation {
+                self.dots.select(offset: offset - self.window.offset)
+            }
+        }
+        
+        // Set new window offset
+        self.window.setOffset(to: offset)
     }
     
     /// Calculates the actual page indicator width
@@ -174,21 +204,7 @@ class PageIndicatorViewModel: ObservableObject {
 
             // Dispatch UI changes to main thread
             self.scheduler.schedule { [weak self] in
-                self?.window.setOffset(to: newOffset)
-            }
-            
-            // Determine the index that is focused by the drag gesture
-            let hOffset = {
-                switch focusedArea {
-                case .beforeStart:
-                    return CGFloat(0)
-                case .behindEnd:
-                    return self.window.width
-                }
-            }()
-            
-            withAnimation {
-                self.dots.select(offset: hOffset - self.window.offset)
+                self?.setOffset(to: newOffset)
             }
         }
     }

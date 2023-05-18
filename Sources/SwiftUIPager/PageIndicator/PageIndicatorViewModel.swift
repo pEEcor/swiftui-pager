@@ -18,9 +18,6 @@ class PageIndicatorViewModel: ObservableObject {
     /// Representation of all dots of the indicator
     @Published private(set) var dots: DotCollection
     
-    /// The window over the dots that is currently visible
-    @Published private(set) var window: Window
-
     /// The style options for the page indicator
     @Published private(set) var style: PageIndicatorStyle
 
@@ -44,7 +41,6 @@ class PageIndicatorViewModel: ObservableObject {
         self.scheduler = scheduler
         
         self.dots = DotCollection(count: count, style: style)
-        self.window = Window(offset: .zero, width: .zero)
     }
 
     /// Handles a Drag Gesture
@@ -62,14 +58,14 @@ class PageIndicatorViewModel: ObservableObject {
 
         // If PageIndicatorView is smaller than collection size, roll when drag gesture focuses
         // area outside of the indicator
-        if self.dots.width > self.window.width,
+        if self.dots.width > self.dots.window.width,
            let focusedArea = self.calcFocusedArea(hOffset: hOffset)
         {
             self.roll(focusedArea: focusedArea)
         } else {
             self.stopRoll()
             withAnimation {
-                self.dots.select(offset: hOffset - self.window.offset)
+                self.dots.select(offset: hOffset - self.dots.window.offset)
             }
         }
     }
@@ -87,10 +83,6 @@ class PageIndicatorViewModel: ObservableObject {
         
         withAnimation {
             self.dots.select(index: index)
-            
-            if !self.dots.isSelectedDotVisible(in: self.window) {
-                
-            }
         }
     }
 
@@ -111,7 +103,7 @@ class PageIndicatorViewModel: ObservableObject {
         let width = self.calcIndicatorWidth(from: width)
         
         // Set new Window
-        self.window.setWidth(to: width)
+        self.dots.setWindowWidth(to: width)
     }
     
     /// Sets the offset of the window and adjusts the selected index accordingly such that a
@@ -119,24 +111,24 @@ class PageIndicatorViewModel: ObservableObject {
     /// - Parameter offset: The window offset
     func setOffset(to offset: Double) {
         // If an area outside the window is focused, the selected index may need to be updated
-        if let focusedArea = self.window.focusedArea(for: offset) {
+        if let focusedArea = self.dots.window.focusedArea(for: offset) {
             // Determine the index that is focused by the drag gesture
             let offset = {
                 switch focusedArea {
                 case .beforeStart:
                     return Double(0)
                 case .behindEnd:
-                    return self.window.width
+                    return self.dots.window.width
                 }
             }()
             
             withAnimation {
-                self.dots.select(offset: offset - self.window.offset)
+                self.dots.select(offset: offset - self.dots.window.offset)
             }
         }
         
         // Set new window offset
-        self.window.setOffset(to: offset)
+        self.dots.setWindowOffset(to: offset)
     }
     
     /// Calculates the actual page indicator width
@@ -158,7 +150,7 @@ class PageIndicatorViewModel: ObservableObject {
     private func calcFocusedArea(hOffset: CGFloat) -> FocusedArea? {
         if hOffset < 0 {
             return .beforeStart
-        } else if hOffset > self.window.width {
+        } else if hOffset > self.dots.window.width {
             return .behindEnd
         } else {
             return nil
@@ -184,7 +176,7 @@ class PageIndicatorViewModel: ObservableObject {
             let newOffset = {
                 switch focusedArea {
                 case .beforeStart:
-                    var newOffset = self.window.offset + slice
+                    var newOffset = self.dots.window.offset + slice
 
                     if newOffset > 0 {
                         newOffset = 0
@@ -192,10 +184,10 @@ class PageIndicatorViewModel: ObservableObject {
 
                     return newOffset
                 case .behindEnd:
-                    var newOffset = self.window.offset - slice
+                    var newOffset = self.dots.window.offset - slice
 
-                    if newOffset < self.window.width - self.dots.width {
-                        newOffset = self.window.width - self.dots.width
+                    if newOffset < self.dots.window.width - self.dots.width {
+                        newOffset = self.dots.window.width - self.dots.width
                     }
 
                     return newOffset

@@ -44,8 +44,12 @@ struct DotCollection {
         return max(self.style.focused.shape.height, self.style.plain.shape.height)
     }
     
+    /// The window over the dots that is currently visible
+    private(set) var window: Window
+    
     private var dots: [Dot]
     private let style: PageIndicatorStyle
+    
     
     init(
         count: Int,
@@ -59,6 +63,7 @@ struct DotCollection {
             ),
             count: count
         )
+        self.window = Window(offset: .zero, width: .zero)
         
         if !self.dots.isEmpty {
             self.dots[0].select()
@@ -143,6 +148,14 @@ struct DotCollection {
         }
         
         self.select(index: index)
+    }
+    
+    mutating func setWindowWidth(to width: Double) {
+        self.window.setWidth(to: width)
+    }
+    
+    mutating func setWindowOffset(to offset: Double) {
+        self.window.setOffset(to: offset)
     }
     
     /// Given an offset inside the dot collection, this method returns the index of the focused dot

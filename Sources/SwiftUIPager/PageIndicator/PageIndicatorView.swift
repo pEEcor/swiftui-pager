@@ -187,15 +187,15 @@ private struct PageIndicatorSizePreferenceKey: PreferenceKey {
             var body: some View {
                 VStack(spacing: 64) {
                     PageIndicatorView(
-                        count: 30,
+                        count: 10,
                         index: $index,
                         style: PageIndicatorStyle(
-                            plainStyle: .circle(radius: 10, color: .gray),
-                            focusedStyle: .circle(radius: 20),
+                            plainStyle: .circle(radius: 30, color: .gray),
+                            focusedStyle: .circle(radius: 60),
                             spacing: 10
                         )
                     )
-                    .frame(width: 100)
+//                    .frame(width: 300)
                 }
                 .background(Color.green)
             }

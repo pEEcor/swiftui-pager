@@ -77,7 +77,8 @@ private struct PagerSizePreferenceKey: PreferenceKey {
     }
 }
 
-struct PagerView_Builder_Previews: PreviewProvider {
+#if DEBUG
+struct Pager_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
     }
@@ -110,3 +111,4 @@ struct PagerView_Builder_Previews: PreviewProvider {
         }
     }
 }
+#endif

@@ -9,8 +9,8 @@ import SwiftUI
 import SwiftUIPager
 
 let circles = PageIndicatorStyle(
-    plainStyle: .circle(radius: 20, color: .gray),
-    focusedStyle: .circle(radius: 30),
+    plainStyle: .circle(radius: 30, color: .gray),
+    focusedStyle: .circle(radius: 60),
     spacing: 20
 )
 
@@ -29,7 +29,7 @@ struct ContentView: View {
     @State var style: PageIndicatorStyle = circles
     @State var location: PageIndicatorLocation = .top
     
-    let data = (0 ..< 3).map { Item(number: $0) }
+    let data = (0 ..< 10).map { Item(number: $0) }
     
     var body: some View {
         VStack {

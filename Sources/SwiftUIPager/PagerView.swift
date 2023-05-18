@@ -131,16 +131,25 @@ public struct PagerView<
                 )
                 .padding(.vertical, 8)
             case .custom(let pageIndicatorBuilder):
-                pageIndicatorBuilder(self.index)
+                pageIndicatorBuilder(
+                    Binding(
+                        get: {
+                            self.index.wrappedValue
+                        },
+                        set: { index, _ in
+                            if index >= 0 && index < self.count {
+                                self.index.wrappedValue = index
+                            }
+                        }
+                    )
+                )
             }
         }
     }
 }
 
-
-
 #if DEBUG
-    struct Pager_Previews: PreviewProvider {
+    struct PagerView_Previews: PreviewProvider {
         struct Item: Identifiable {
             var id: Int { self.number }
             let number: Int

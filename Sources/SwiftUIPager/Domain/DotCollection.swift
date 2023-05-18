@@ -77,7 +77,7 @@ struct DotCollection {
         try self.dots.filter(isIncluded)
     }
     
-    /// Calculates the offset to the selected respecting the styling of all preceding dots
+    /// Calculates the offset to the selected dot respecting the styling of all preceding dots
     /// - Returns: Offset to selected dot
     func getOffsetToSelectedDot(
         includeWidth: Bool = false
@@ -132,7 +132,8 @@ struct DotCollection {
     }
     
     /// Returns true if selected dot is fully visibile inside the given window
-    /// - Parameter window: The window that describes the visible section of the page indicator dot collection
+    /// - Parameter window: The window that describes the visible section of the page indicator
+    /// dot collection
     /// - Returns: true if a dot is selected and is fully visible, otherwise false
     func isSelectedDotVisible(
         in window: Window
@@ -166,6 +167,49 @@ struct DotCollection {
         
         // Select dot with given index
         self.dots[index].select()
+    }
+    
+    /// Selects the dot at the given index
+    /// - Parameter offset: Offset inside collection
+    mutating func select(offset: Double) {
+        guard let index = self.index(at: offset) else {
+            return
+        }
+        
+        self.select(index: index)
+    }
+    
+    /// Given an offset inside the dot collection, this method returns the index of the focused dot
+    ///
+    /// If the offset targets a gap between dots, nil is returned.
+    /// - Parameter offset: The offset to get the index for
+    /// - Returns: Index if dot is focused, otherwise nil
+    func index(at offset: Double) -> Int? {
+        // Ensure that offset is not outside of dot collection
+        guard offset > 0 && offset < self.width else {
+            return nil
+        }
+        
+        // Ensure that dot collection is not empty
+        guard !self.dots.isEmpty else {
+            return nil
+        }
+        
+        
+        var tmp: Double = 0
+
+        for (index, dot) in dots.enumerated() {
+            let x1 = tmp
+            let x2 = tmp + dot.width
+            
+            if offset > x1 && offset < x2 {
+                return index
+            }
+            
+            tmp = x2 + self.style.spacing
+        }
+        
+        return nil
     }
     
     mutating func change(count: Int) {

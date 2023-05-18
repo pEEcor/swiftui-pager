@@ -10,7 +10,13 @@ import Foundation
 /// Indicator Model
 struct Dot {
     /// Width of the dot
-    private(set) var width: CGFloat
+    var width: Double {
+        if self.isSelected {
+            return self.style.focused.shape.width
+        } else {
+            return self.style.plain.shape.width
+        }
+    }
     
     /// State of the dot
     private(set) var isSelected: Bool
@@ -23,21 +29,13 @@ struct Dot {
     ) {
         self.isSelected = isSelected
         self.style = style
-        
-        if isSelected {
-            self.width = style.focused.shape.width
-        } else {
-            self.width = style.plain.shape.width
-        }
     }
     
     mutating func select() {
         self.isSelected = true
-        self.width = style.focused.shape.width
     }
     
     mutating func deselect() {
         self.isSelected = false
-        self.width = style.plain.shape.width
     }
 }

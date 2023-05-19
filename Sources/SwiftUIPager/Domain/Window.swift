@@ -50,13 +50,6 @@ struct Window {
         }
     }
     
-    /// Moves the Window
-    ///
-    /// - Parameter offset: The relative offset by which the window should be moved
-    mutating func shift(by offset: Double) {
-        self.offset += offset
-    }
-    
     /// Resizes the Window to the given width
     ///
     /// - Parameter width: The new width of the window

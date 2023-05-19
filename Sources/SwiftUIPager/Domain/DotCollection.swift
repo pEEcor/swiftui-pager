@@ -119,7 +119,7 @@ struct DotCollection {
             return false
         }
         
-        return min <= window.min && max >= window.max
+        return min >= window.min && max <= window.max
     }
     
     /// Selects the dot with the given index
@@ -149,13 +149,13 @@ struct DotCollection {
                     return
                 }
                 
-                self.window.setOffset(to: -leadingOffset)
+                self.window.setOffset(to: leadingOffset)
             case .some(.behindEnd):
                 guard let trailingOffset = self.offset(of: index, includeDotWidth: true) else {
                     return
                 }
                 
-                self.window.setOffset(to: self.window.width - trailingOffset)
+                self.window.setOffset(to: trailingOffset - self.window.width)
             case .none:
                 return
             }
@@ -171,9 +171,9 @@ struct DotCollection {
             return nil
         }
         
-        if leadingOffset + self.window.offset <= 0 {
+        if leadingOffset - self.window.offset <= 0 {
             return .beforeStart
-        } else if (self.window.width - self.window.offset) - trailingOffset <= 0 {
+        } else if self.window.width + self.window.offset - trailingOffset <= 0 {
             return .behindEnd
         } else {
             return nil
@@ -182,7 +182,7 @@ struct DotCollection {
     
     /// Selects the dot at the given index
     /// - Parameter offset: Offset inside collection
-    mutating func select(offset: Double) {
+    mutating func selectDot(with offset: Double) {
         guard let index = self.index(at: offset) else {
             return
         }

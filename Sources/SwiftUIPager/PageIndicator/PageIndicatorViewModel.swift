@@ -54,18 +54,20 @@ class PageIndicatorViewModel: ObservableObject {
         self.hasStartedDrag = true
         
         // The targeted offset inside the page indicator window
-        let hOffset = startLocation.x + translation.width
+        let offset = startLocation.x + translation.width
 
         // If PageIndicatorView is smaller than collection size, roll when drag gesture focuses
         // area outside of the indicator
-        if self.dots.width > self.dots.window.width,
-           let focusedArea = self.calcFocusedArea(hOffset: hOffset)
-        {
-            self.roll(focusedArea: focusedArea)
+        if let focusedArea = self.calcFocusedArea(offset: offset) {
+            if self.dots.width > self.dots.window.width {
+                self.roll(focusedArea: focusedArea)
+            } else {
+                self.stopRoll()
+            }
         } else {
             self.stopRoll()
             withAnimation {
-                self.dots.select(offset: hOffset - self.dots.window.offset)
+                self.dots.selectDot(with: offset + self.dots.window.offset)
             }
         }
     }
@@ -106,31 +108,6 @@ class PageIndicatorViewModel: ObservableObject {
         self.dots.setWindowWidth(to: width)
     }
     
-    /// Sets the offset of the window and adjusts the selected index accordingly such that a
-    /// selected dot is always visible.
-    /// - Parameter offset: The window offset
-    func setOffset(to offset: Double) {
-        // If an area outside the window is focused, the selected index may need to be updated
-        if let focusedArea = self.dots.window.focusedArea(for: offset) {
-            // Determine the index that is focused by the drag gesture
-            let offset = {
-                switch focusedArea {
-                case .beforeStart:
-                    return Double(0)
-                case .behindEnd:
-                    return self.dots.window.width
-                }
-            }()
-            
-            withAnimation {
-                self.dots.select(offset: offset - self.dots.window.offset)
-            }
-        }
-        
-        // Set new window offset
-        self.dots.setWindowOffset(to: offset)
-    }
-    
     /// Calculates the actual page indicator width
     ///
     /// - Returns: Actual page indicator width
@@ -147,10 +124,10 @@ class PageIndicatorViewModel: ObservableObject {
     ///
     /// - Parameter hOffset: Offset relative to the start location of the indicator (left border)
     /// - Returns: The focused area or nil if the indicator itself is focused
-    private func calcFocusedArea(hOffset: CGFloat) -> FocusedArea? {
-        if hOffset < 0 {
+    private func calcFocusedArea(offset: CGFloat) -> FocusedArea? {
+        if offset < 0 {
             return .beforeStart
-        } else if hOffset > self.dots.window.width {
+        } else if offset > self.dots.window.width {
             return .behindEnd
         } else {
             return nil
@@ -169,35 +146,50 @@ class PageIndicatorViewModel: ObservableObject {
             repeats: true
         ) { [weak self] _ in
             guard let self = self else { return }
-
-            let totalSlice = Self.ROLL_DISTANCE_FACTOR * self.style.plain.shape.width
-            let slice = totalSlice * Self.ROLL_UPDATE_RATE
+            
+            if self.dots.window.offset < 0 || self.dots.window.offset > self.dots.width - self.dots.window.width {
+                self.stopRoll()
+            }
+            
+            let movement = self.calcSlice(for: focusedArea)
+            let targetOffset = movement + self.dots.window.offset
 
             let newOffset = {
-                switch focusedArea {
-                case .beforeStart:
-                    var newOffset = self.dots.window.offset + slice
-
-                    if newOffset > 0 {
-                        newOffset = 0
-                    }
-
-                    return newOffset
-                case .behindEnd:
-                    var newOffset = self.dots.window.offset - slice
-
-                    if newOffset < self.dots.window.width - self.dots.width {
-                        newOffset = self.dots.window.width - self.dots.width
-                    }
-
-                    return newOffset
+                if targetOffset <= 0 {
+                    return 0.0
+                } else if targetOffset >= self.dots.width - self.dots.window.width {
+                    return self.dots.width - self.dots.window.width
+                } else {
+                    return targetOffset
                 }
             }()
-
+            
             // Dispatch UI changes to main thread
             self.scheduler.schedule { [weak self] in
-                self?.setOffset(to: newOffset)
+                withAnimation {
+                    guard let self else { return }
+                    
+                    self.dots.setWindowOffset(to: newOffset)
+                    
+                    if movement <= 0 {
+                        self.dots.selectDot(with: self.dots.window.offset)
+                    } else {
+                        self.dots.selectDot(with: self.dots.window.offset + self.dots.window.width)
+                    }
+                }
             }
+        }
+    }
+    
+    private func calcSlice(for focusedArea: FocusedArea) -> Double {
+        let totalSlice = Self.ROLL_DISTANCE_FACTOR * self.style.plain.shape.width
+        let slice = totalSlice * Self.ROLL_UPDATE_RATE
+        
+        switch focusedArea {
+        case .beforeStart:
+            return -slice
+        case .behindEnd:
+            return slice
         }
     }
 

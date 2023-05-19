@@ -58,10 +58,10 @@ struct DemoView: View {
 }
 
 struct StyledView: View {
-    @State var style: PageIndicatorStyle? = .default
+    @State var style: PageIndicatorStyle? = circles
     @State var location: PageIndicatorLocation = .bottom
     
-    let data = (0 ..< 10).map { Item(number: $0) }
+    let data = (0 ..< 20).map { Item(number: $0) }
     
     var body: some View {
         VStack {
@@ -74,6 +74,7 @@ struct StyledView: View {
                     .background(Capsule())
                     .padding(.top, 8)
             }
+            .padding()
             
             HStack {
                 Menu("Location") {

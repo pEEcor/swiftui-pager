@@ -92,7 +92,7 @@ public struct PageIndicatorView: View {
         )
         .offset(
             CGSize(
-                width: self.viewModel.dots.window.offset,
+                width: -self.viewModel.dots.window.offset,
                 height: 0
             )
         )

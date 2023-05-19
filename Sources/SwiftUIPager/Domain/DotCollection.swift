@@ -14,13 +14,16 @@ enum Edge {
 
 /// A Collection that holds a dot model for each dot in the page indicator
 struct DotCollection {
+    /// Typealias for index of dots
+    typealias Index = Int
+    
     /// The amount of dots in the collection
     var count: Int {
         self.dots.count
     }
     
     /// The index of the selected dot
-    var selectedIndex: Int? {
+    var selectedIndex: Index? {
         self.dots.firstIndex(where: { $0.isSelected })
     }
     
@@ -69,7 +72,7 @@ struct DotCollection {
         }
     }
     
-    subscript(index: Int) -> Dot? {
+    subscript(index: Index) -> Dot? {
         guard index >= 0 && index < self.dots.count else {
             return nil
         }
@@ -125,7 +128,7 @@ struct DotCollection {
     /// gets selected and the current selection gets canceled. The selections stays unchanged if
     /// the index is not part of the collection.
     /// - Parameter index: Index of the dot that should be selected
-    mutating func select(index: Int) {
+    mutating func selectDot(with index: Index) {
         // Abort if index is invalid
         guard index >= 0 && index < self.dots.count else {
             return
@@ -159,7 +162,7 @@ struct DotCollection {
         }
     }
     
-    private func getLocationOf(index: Int) -> FocusedArea? {
+    private func getLocationOf(index: Index) -> FocusedArea? {
         guard let leadingOffset = self.offset(of: index) else {
             return nil
         }
@@ -184,7 +187,7 @@ struct DotCollection {
             return
         }
         
-        self.select(index: index)
+        self.selectDot(with: index)
     }
     
     mutating func setWindowWidth(to width: Double) {
@@ -200,7 +203,7 @@ struct DotCollection {
     /// If the offset targets a gap between dots, nil is returned.
     /// - Parameter offset: The offset to get the index for
     /// - Returns: Index if dot is focused, otherwise nil
-    func index(at offset: Double) -> Int? {
+    func index(at offset: Double) -> Index? {
         // Ensure that offset is not outside of dot collection
         guard offset > 0 && offset < self.width else {
             return nil
@@ -227,7 +230,7 @@ struct DotCollection {
         return nil
     }
     
-    func offset(of index: Int, includeDotWidth: Bool = false) -> Double? {
+    func offset(of index: Index, includeDotWidth: Bool = false) -> Double? {
         // Ensure that index exists
         guard index >= 0 && index < self.dots.count else {
             return nil
@@ -253,7 +256,7 @@ struct DotCollection {
             
             // Check if there is a selected dot. If not, select last element
             if !dots.contains(where: { $0.isSelected }) {
-                self.select(index: self.dots.endIndex - 1)
+                self.selectDot(with: self.dots.endIndex - 1)
             }
         } else if count > self.dots.count && self.dots.count == 0 {
             // Append dots

@@ -82,7 +82,7 @@ class PageIndicatorViewModel: ObservableObject {
         guard index >= 0 && index < self.dots.count else { return }
         
         withAnimation {
-            self.dots.select(index: index)
+            self.dots.selectDot(with: index)
         }
     }
 

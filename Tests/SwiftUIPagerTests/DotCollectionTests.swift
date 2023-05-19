@@ -5,7 +5,7 @@ import XCTest
 final class DotCollectionTests: XCTestCase {
     func test_change_shouldAddDotsWhenCountIsIncreased() {
         var sut = makeSUT(count: 5)
-        sut.select(index: 2)
+        sut.selectDot(with: 2)
         
         // Execute
         sut.change(count: 10)
@@ -23,7 +23,7 @@ final class DotCollectionTests: XCTestCase {
     
     func test_change_shouldRemoveDotsWhenCountIsIncreased() {
         var sut = makeSUT(count: 10)
-        sut.select(index: 7)
+        sut.selectDot(with: 7)
         
         // Execute
         sut.change(count: 5)
@@ -93,7 +93,7 @@ final class DotCollectionTests: XCTestCase {
         var sut = makeSUT(count: 10)
         
         // Execute
-        sut.select(index: 2)
+        sut.selectDot(with: 2)
         
         // Assert
         XCTAssertTrue(sut[2]!.isSelected)
@@ -103,7 +103,7 @@ final class DotCollectionTests: XCTestCase {
         var sut = makeSUT(count: 10)
         
         // Execute
-        sut.select(index: 5)
+        sut.selectDot(with: 5)
         
         // Assert
         XCTAssertEqual(sut.filter({ $0.isSelected }).count, 1)
@@ -125,7 +125,7 @@ final class DotCollectionTests: XCTestCase {
         
         
         // Assert: Should return 20 when selected dot is 1
-        sut.select(index: 1)
+        sut.selectDot(with: 1)
         let offset2 = sut.getOffsetToSelectedDot()
         XCTAssertEqual(offset2, 20)
     }
@@ -151,7 +151,7 @@ final class DotCollectionTests: XCTestCase {
         XCTAssertFalse(sut.isSelectedDotVisible(in: Window(offset: 1, width: 100)))
         
         // Assert: Collection with dots should return false if dot is not visible
-        sut.select(index: 3)
+        sut.selectDot(with: 3)
         XCTAssertFalse(sut.isSelectedDotVisible(in: Window(offset: 61, width: 100)))
     }
     

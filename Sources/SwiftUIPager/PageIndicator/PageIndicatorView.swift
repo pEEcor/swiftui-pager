@@ -199,7 +199,7 @@ private struct PageIndicatorSizePreferenceKey: PreferenceKey {
                     .padding(8)
                     .background(
                         Capsule()
-                            .foregroundColor(Color(uiColor: .systemGray2))
+                            .foregroundColor(.gray)
                             .opacity(0.5)
                     )
                     
@@ -207,8 +207,14 @@ private struct PageIndicatorSizePreferenceKey: PreferenceKey {
                         count: 10,
                         index: $index,
                         style: PageIndicatorStyle(
-                            plainStyle: .circle(radius: 30, color: Color(uiColor: .systemGray)),
-                            focusedStyle: .circle(radius: 60),
+                            plainStyle: .circle(
+                                radius: 30,
+                                color: .red
+                            ),
+                            focusedStyle: .circle(
+                                radius: 60,
+                                color: .blue
+                            ),
                             spacing: 10
                         )
                     )

@@ -63,8 +63,8 @@ public struct PagerView<
     /// The PagerView builds a view for each element in the data collection. And allows scrolling
     /// through the pages.
     ///
-    /// For customization of the PagerView have a look into ``pageIndicator(location:style:)`` and
-    /// ``pageIndicator(location:content:)``.
+    /// For customization of the PagerView have a look into ``indicator(location:style:)`` and
+    /// ``indicator(location:content:)``.
     ///
     /// - Important: All Pages will be built up front. There is no lazy initialization of pages
     ///
@@ -125,7 +125,7 @@ public struct PagerView<
             switch self.pageIndicatorEnvironment.kind {
             case let .some(.styled(style, background)):
                 background(
-                    PageIndicatorView(
+                    IndicatorView(
                         count: self.count,
                         index: self.index,
                         style: style

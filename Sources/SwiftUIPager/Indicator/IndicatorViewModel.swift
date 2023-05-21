@@ -8,7 +8,7 @@ enum FocusedArea {
     case behindEnd
 }
 
-class PageIndicatorViewModel: ObservableObject {
+class IndicatorViewModel: ObservableObject {
     /// Rate that is used to automatically roll the dot collection
     static var ROLL_UPDATE_RATE = Double(1) / Double(120)
 
@@ -19,7 +19,7 @@ class PageIndicatorViewModel: ObservableObject {
     @Published private(set) var dots: DotCollection
     
     /// The style options for the page indicator
-    @Published private(set) var style: PageIndicatorStyle
+    @Published private(set) var style: IndicatorStyle
 
     private(set) var hasStartedDrag = false
     private(set) var rollTimer: Timer?
@@ -34,7 +34,7 @@ class PageIndicatorViewModel: ObservableObject {
     ///   - scheduler: A scheduler used to perform the automated scrolling when scrubbing
     init(
         count: Int = 0,
-        style: PageIndicatorStyle = .default,
+        style: IndicatorStyle = .default,
         scheduler: AnySchedulerOf<DispatchQueue> = AnyScheduler.main
     ) {
         self.style = style
@@ -95,7 +95,7 @@ class PageIndicatorViewModel: ObservableObject {
     
     /// Sets a new style
     /// - Parameter style: The new style
-    func setStyle(_ style: PageIndicatorStyle) {
+    func setStyle(_ style: IndicatorStyle) {
         self.style = style
     }
     

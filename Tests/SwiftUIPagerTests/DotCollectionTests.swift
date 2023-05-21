@@ -112,7 +112,7 @@ final class DotCollectionTests: XCTestCase {
     func test_getOffsetToSelectedDot() {
         var sut = makeSUT(
             count: 10,
-            style: PageIndicatorStyle(
+            style: IndicatorStyle(
                 plainStyle: .rect(size: CGSize(width: 10, height: 10)),
                 focusedStyle: .default,
                 spacing: 10
@@ -133,7 +133,7 @@ final class DotCollectionTests: XCTestCase {
     func test_isSelectedDotVisible() {
         var sut = makeSUT(
             count: 0,
-            style: PageIndicatorStyle(
+            style: IndicatorStyle(
                 plainStyle: .rect(size: CGSize(width: 10, height: 10)),
                 focusedStyle: .default,
                 spacing: 10
@@ -157,7 +157,7 @@ final class DotCollectionTests: XCTestCase {
     
     private func makeSUT(
         count: Int = 10,
-        style: PageIndicatorStyle = .default
+        style: IndicatorStyle = .default
     ) -> DotCollection {
         let sut = DotCollection(count: count, style: style)
         

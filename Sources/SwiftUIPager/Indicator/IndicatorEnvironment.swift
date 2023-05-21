@@ -8,32 +8,32 @@
 import SwiftUI
 
 typealias PageIndicatorBuilder = (Binding<Int>) -> AnyView
-typealias BackgroundBuilder = (PageIndicatorView) -> AnyView
+typealias BackgroundBuilder = (IndicatorView) -> AnyView
 
-struct PageIndicatorEnvironment {
-    let kind: PageIndicatorKind?
-    let location: PageIndicatorLocation
+struct IndicatorEnvironment {
+    let kind: IndicatorKind?
+    let location: IndicatorLocation
     
     static var `default`: Self {
-        PageIndicatorEnvironment(
+        IndicatorEnvironment(
             kind: .styled(.default, { _ in AnyView(EmptyView()) }),
             location: .bottom
         )
     }
 }
 
-enum PageIndicatorKind {
-    case styled(PageIndicatorStyle, BackgroundBuilder)
+enum IndicatorKind {
+    case styled(IndicatorStyle, BackgroundBuilder)
     case custom(PageIndicatorBuilder)
 }
 
-public enum PageIndicatorLocation {
+public enum IndicatorLocation {
     case top
     case bottom
 }
 
 struct PageIndicatorKey: EnvironmentKey {
-    typealias Value = PageIndicatorEnvironment
+    typealias Value = IndicatorEnvironment
     
     static var defaultValue: Value = .default
 }
@@ -50,13 +50,13 @@ extension View {
     /// - Parameters:
     ///   - location: The location where the PageIndicator is placed
     ///   - content: A custom PageIndicator
-    public func pageIndicator<Content: View>(
-        location: PageIndicatorLocation = .bottom,
+    public func indicator<Content: View>(
+        location: IndicatorLocation = .bottom,
         @ViewBuilder content: @escaping (Binding<Int>) -> Content
     ) -> some View {
         self.environment(
             \.pageIndicator,
-             PageIndicatorEnvironment(
+             IndicatorEnvironment(
                 kind: .custom({ AnyView(content($0)) }),
                 location: location
              )
@@ -67,15 +67,15 @@ extension View {
     /// - Parameters:
     ///   - location: The location where the PageIndicator is placed
     ///   - style: The style of the default PageIndicator
-    public func pageIndicator<Background: View>(
-        location: PageIndicatorLocation = .bottom,
-        style: PageIndicatorStyle? = nil,
-        @ViewBuilder background: @escaping (PageIndicatorView) -> Background = { _ in AnyView(EmptyView()) }
+    public func indicator<Background: View>(
+        location: IndicatorLocation = .bottom,
+        style: IndicatorStyle? = nil,
+        @ViewBuilder background: @escaping (IndicatorView) -> Background = { _ in AnyView(EmptyView()) }
     ) -> some View {
         if let style = style {
             return self.environment(
                 \.pageIndicator,
-                 PageIndicatorEnvironment(
+                 IndicatorEnvironment(
                     kind: .styled(style, { AnyView(background($0)) }),
                     location: location
                  )
@@ -83,7 +83,7 @@ extension View {
         } else {
             return self.environment(
                 \.pageIndicator,
-                 PageIndicatorEnvironment(
+                 IndicatorEnvironment(
                     kind: nil,
                     location: location
                  )

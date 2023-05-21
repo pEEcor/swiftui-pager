@@ -68,10 +68,10 @@ final class PageIndicatorViewModelTests: XCTestCase {
     
     private func makeSUT(
         count: Int = 10,
-        style: PageIndicatorStyle = .default,
+        style: IndicatorStyle = .default,
         scheduler: AnySchedulerOf<DispatchQueue> = .main
-    ) -> PageIndicatorViewModel {
-        let sut = PageIndicatorViewModel(
+    ) -> IndicatorViewModel {
+        let sut = IndicatorViewModel(
             count: count,
             style: style,
             scheduler: scheduler

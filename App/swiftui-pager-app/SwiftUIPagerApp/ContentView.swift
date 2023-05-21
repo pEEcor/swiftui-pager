@@ -8,13 +8,13 @@
 import SwiftUI
 import SwiftUIPager
 
-let circles = PageIndicatorStyle(
+let circles = IndicatorStyle(
     plainStyle: .circle(radius: 20, color: .gray),
     focusedStyle: .circle(radius: 40),
     spacing: 20
 )
 
-let rects = PageIndicatorStyle(
+let rects = IndicatorStyle(
     plainStyle: .rect(size: CGSize(width: 20, height: 20), color: .gray),
     focusedStyle: .rect(size: CGSize(width: 80, height: 20)),
     spacing: 20
@@ -44,7 +44,7 @@ struct DemoView: View {
                 CustomView()
             }
         }
-        .pageIndicator(location: .top) { $index in
+        .indicator(location: .top) { $index in
             Picker(selection: $index) {
                 Text("Styled").tag(0)
                 Text("Custom").tag(1)
@@ -58,8 +58,8 @@ struct DemoView: View {
 }
 
 struct StyledView: View {
-    @State var style: PageIndicatorStyle? = circles
-    @State var location: PageIndicatorLocation = .bottom
+    @State var style: IndicatorStyle? = circles
+    @State var location: IndicatorLocation = .bottom
     
     let data = (0 ..< 20).map { Item(number: $0) }
     
@@ -68,7 +68,7 @@ struct StyledView: View {
             PagerView(data) { element in
                 Color.random
             }
-            .pageIndicator(location: self.location, style: self.style) { indicator in
+            .indicator(location: self.location, style: self.style) { indicator in
                 indicator
                     .padding(8)
                     .background(Capsule())
@@ -118,7 +118,7 @@ struct CustomView: View {
             Color.random
         }
         .padding(.top, 300)
-        .pageIndicator { $index in
+        .indicator { $index in
             HStack {
                 Button("Previous") {
                     index -= 1

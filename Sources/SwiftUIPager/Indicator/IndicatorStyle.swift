@@ -2,12 +2,12 @@ import Foundation
 import SwiftUI
 
 /// Style Options for the entire PageIndicator
-public struct PageIndicatorStyle: Equatable {
+public struct IndicatorStyle: Equatable {
     /// The style of a normal dot
-    let plain: PageIndicatorDotStyle
+    let plain: DotStyle
     
     /// The style of a dot represinting the active page
-    let focused: PageIndicatorDotStyle
+    let focused: DotStyle
     
     /// The spacing between dots
     let spacing: CGFloat
@@ -18,8 +18,8 @@ public struct PageIndicatorStyle: Equatable {
     ///   - focusedStyle: Style of the page indicator dot that represents the currently active page
     ///   - spacing: Spacing between the individual page indicator dots
     public init(
-        plainStyle: PageIndicatorDotStyle = .default,
-        focusedStyle: PageIndicatorDotStyle = .default,
+        plainStyle: DotStyle = .default,
+        focusedStyle: DotStyle = .default,
         spacing: CGFloat = 10
     ) {
         self.plain = plainStyle
@@ -29,7 +29,7 @@ public struct PageIndicatorStyle: Equatable {
     
     /// The default style using sensible default values
     public static var `default`: Self {
-        PageIndicatorStyle(
+        IndicatorStyle(
             plainStyle: .circle(radius: 8, color: .gray.opacity(0.7)),
             focusedStyle: .circle(radius: 10, color: .white),
             spacing: 8
@@ -38,7 +38,7 @@ public struct PageIndicatorStyle: Equatable {
 }
 
 /// Style definition for a single page indicator dot
-public struct PageIndicatorDotStyle: Equatable {
+public struct DotStyle: Equatable {
     /// The shape of the dot
     public let shape: Shape
     
@@ -66,7 +66,7 @@ public struct PageIndicatorDotStyle: Equatable {
         radius: CGFloat,
         color: Color = .accentColor
     ) -> Self {
-        PageIndicatorDotStyle(shape: .circle(radius: radius), color: color)
+        DotStyle(shape: .circle(radius: radius), color: color)
     }
     
     /// Creates a style definition for a rectangular shaped page indicator dot
@@ -78,12 +78,12 @@ public struct PageIndicatorDotStyle: Equatable {
         size: CGSize,
         color: Color = .accentColor
     ) -> Self {
-        PageIndicatorDotStyle(shape: .rect(size: size), color: color)
+        DotStyle(shape: .rect(size: size), color: color)
     }
     
     /// The default style using sensible default values
     public static var `default`: Self {
-        PageIndicatorDotStyle()
+        DotStyle()
     }
     
     /// Shape Definition of a page indicator dot

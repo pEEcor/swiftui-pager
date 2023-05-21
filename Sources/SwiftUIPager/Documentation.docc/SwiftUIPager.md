@@ -6,7 +6,7 @@ to any page and features such as scrubbing and quick scrolling through the pager
 
 ## Overview
 
-The library comes with two major views, the ``PagerView`` and the ``PageIndicatorView``. Both views
+The library comes with two major views, the ``PagerView`` and the ``IndicatorView``. Both views
 can be used individually or combined to create a rich pager experience.
 
 ## Topics
@@ -14,4 +14,4 @@ can be used individually or combined to create a rich pager experience.
 ### Essentials
 
 - ``PagerView``
-- ``PageIndicatorView``
+- ``IndicatorView``

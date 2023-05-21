@@ -3,22 +3,22 @@ import SwiftUI
 /// A PageIndicator that shows a visual representation of which page is currenlty focused by a
 /// pager.
 ///
-/// The PageIndicatorView allows multiple interactions that modify the state of a Pager. Usually, a
+/// The IndicatorView allows multiple interactions that modify the state of a Pager. Usually, a
 /// PageIndicator is showing simple dots, each representing a Page of the associated Pager.
-/// Selecting such a dot focuses the Page in the Pager. Additionally, the PageIndicatorView enables
-/// scrolling of the dots when the Pager has too much content for the PageIndicatorView to show a
+/// Selecting such a dot focuses the Page in the Pager. Additionally, the IndicatorView enables
+/// scrolling of the dots when the Pager has too much content for the IndicatorView to show a
 /// dot for each page. In this case the dots can be scrolled when performing a drag gesture that
-/// exceeds the PageIndicatorView's bounds.
+/// exceeds the IndicatorView's bounds.
 ///
-/// The PageIndicatorView is independent from any Pager, it can be used for any kind of page
+/// The IndicatorView is independent from any Pager, it can be used for any kind of page
 /// representation through it's index binding. However, if used with the ``PagerView`` that comes
 /// with this library, there are dedicated view modifiers, that provide convienient access to
 /// customize the PageIndicator.
 ///
-/// The page indicator can be styled using ``pageIndicator(location:style:background:)`` if
+/// The page indicator can be styled using ``indicator(location:style:background:)`` if
 /// additional customization is required. If you need to inject a completely custom page indicator,
-/// there is also ``pageIndicator(location:content:)``.
-public struct PageIndicatorView: View {
+/// there is also ``indicator(location:content:)``.
+public struct IndicatorView: View {
 
     // View model for the page indicator. By using a state object, the view model will be
     // instatiated exactly once. This allows this view to manage its view model by itself, without
@@ -26,16 +26,16 @@ public struct PageIndicatorView: View {
     // the view's initializer will not update the view model. Specifically count and style,
     // therefore additional onChange modifiers are employed to propagate such changes into the view
     // model.
-    @StateObject private var viewModel: PageIndicatorViewModel
+    @StateObject private var viewModel: IndicatorViewModel
 
     private let count: Int
     private let index: Binding<Int>
-    private let style: PageIndicatorStyle
+    private let style: IndicatorStyle
 
-    /// Creates PageIndicatorView, typlically for manual customization.
+    /// Creates IndicatorView, typlically for manual customization.
     ///
     /// You probably don't want to use this directly. The PageIndicator of a PagerView is
-    /// customizable using a dedicated view modifier. See ``pageIndicator(location:style:)``.
+    /// customizable using a dedicated view modifier. See ``indicator(location:style:)``.
     /// However, the PageIndicator may be decorated with other Views and than injected into the
     /// PagerView as a custom PageIndicator.
     ///
@@ -46,10 +46,10 @@ public struct PageIndicatorView: View {
     public init(
         count: Int,
         index: Binding<Int>,
-        style: PageIndicatorStyle = .default
+        style: IndicatorStyle = .default
     ) {
         self._viewModel = StateObject(
-            wrappedValue: PageIndicatorViewModel(
+            wrappedValue: IndicatorViewModel(
                 count: count,
                 style: style
             )
@@ -127,7 +127,7 @@ public struct PageIndicatorView: View {
         }
     }
     
-    private func style(for index: Int) -> PageIndicatorDotStyle {
+    private func style(for index: Int) -> DotStyle {
         if index == self.viewModel.dots.selectedIndex {
             return self.viewModel.style.focused
         } else {
@@ -136,11 +136,11 @@ public struct PageIndicatorView: View {
     }
     
     struct Indicator: View {
-        let style: PageIndicatorDotStyle
+        let style: DotStyle
         let onTap: () -> Void
         
         init(
-            style: PageIndicatorDotStyle,
+            style: DotStyle,
             onTap: @escaping () -> Void
         ) {
             self.style = style
@@ -191,7 +191,7 @@ private struct PageIndicatorSizePreferenceKey: PreferenceKey {
 
             var body: some View {
                 VStack(spacing: 64) {
-                    PageIndicatorView(
+                    IndicatorView(
                         count: 10,
                         index: $index,
                         style: .default
@@ -203,10 +203,10 @@ private struct PageIndicatorSizePreferenceKey: PreferenceKey {
                             .opacity(0.5)
                     )
                     
-                    PageIndicatorView(
+                    IndicatorView(
                         count: 10,
                         index: $index,
-                        style: PageIndicatorStyle(
+                        style: IndicatorStyle(
                             plainStyle: .circle(
                                 radius: 30,
                                 color: .red

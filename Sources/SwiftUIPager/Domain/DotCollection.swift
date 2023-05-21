@@ -51,11 +51,11 @@ struct DotCollection {
     private(set) var window: Window
     
     private var dots: [Dot]
-    private let style: PageIndicatorStyle
+    private let style: IndicatorStyle
     
     init(
         count: Int,
-        style: PageIndicatorStyle
+        style: IndicatorStyle
     ) {
         self.style = style
         self.dots = Array(

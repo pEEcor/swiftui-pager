@@ -11,7 +11,7 @@ import XCTest
 
 final class DotTests: XCTestCase {
     func test_init_shouldSetWidthToFocusedWidthWhenFocused() {
-        let style = PageIndicatorStyle.default
+        let style = IndicatorStyle.default
         let sut = makeSUT(isSelected: true)
         
         // Assert
@@ -19,7 +19,7 @@ final class DotTests: XCTestCase {
     }
     
     func test_init_shouldSetWidthToPlainWidthWhenNotFocused() {
-        let style = PageIndicatorStyle.default
+        let style = IndicatorStyle.default
         let sut = makeSUT(isSelected: false)
         
         // Assert
@@ -27,7 +27,7 @@ final class DotTests: XCTestCase {
     }
     
     func test_select_shouldSelectDot() {
-        let style = PageIndicatorStyle.default
+        let style = IndicatorStyle.default
         var sut = makeSUT(isSelected: false)
         
         // Execute
@@ -39,7 +39,7 @@ final class DotTests: XCTestCase {
     }
     
     func test_deselect_shouldDeselectDot() {
-        let style = PageIndicatorStyle.default
+        let style = IndicatorStyle.default
         var sut = makeSUT(isSelected: true)
         
         // Execute
@@ -52,7 +52,7 @@ final class DotTests: XCTestCase {
     
     private func makeSUT(
         isSelected: Bool = false,
-        style: PageIndicatorStyle = .default
+        style: IndicatorStyle = .default
     ) -> Dot {
         let sut = Dot(isSelected: isSelected, style: style)
         

@@ -21,11 +21,11 @@ struct Dot {
     /// State of the dot
     private(set) var isSelected: Bool
     
-    private let style: PageIndicatorStyle
+    private let style: IndicatorStyle
     
     init(
         isSelected: Bool,
-        style: PageIndicatorStyle
+        style: IndicatorStyle
     ) {
         self.isSelected = isSelected
         self.style = style

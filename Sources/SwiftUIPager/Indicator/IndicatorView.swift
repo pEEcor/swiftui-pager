@@ -58,7 +58,7 @@ public struct IndicatorView: View {
     }
 
     public var body: some View {
-        self.pageIndicator()
+        self.indicator()
             .readSize(key: PageIndicatorSizePreferenceKey.self)
             .onPreferenceChange(PageIndicatorSizePreferenceKey.self) { size in
                 self.viewModel.setWidth(size.width)
@@ -72,7 +72,7 @@ public struct IndicatorView: View {
     }
     
     @ViewBuilder
-    private func pageIndicator() -> some View {
+    private func indicator() -> some View {
         GeometryReader { proxy in
             HStack(spacing: self.viewModel.style.spacing) {
                 ForEach(0 ..< self.viewModel.dots.count, id: \.self) { index in

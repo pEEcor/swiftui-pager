@@ -13,7 +13,7 @@ enum Edge {
 }
 
 /// A Collection that holds a dot model for each dot in the page indicator
-struct DotCollection {
+struct DotCollection: Sendable {
     /// Typealias for index of dots
     typealias Index = Int
     

@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 
 /// Style Options for the entire PageIndicator
-public struct IndicatorStyle: Equatable {
+public struct IndicatorStyle: Equatable, Sendable {
     /// The style of a normal dot
     let plain: DotStyle
     
@@ -38,7 +38,7 @@ public struct IndicatorStyle: Equatable {
 }
 
 /// Style definition for a single page indicator dot
-public struct DotStyle: Equatable {
+public struct DotStyle: Equatable, Sendable {
     /// The shape of the dot
     public let shape: Shape
     
@@ -87,7 +87,7 @@ public struct DotStyle: Equatable {
     }
     
     /// Shape Definition of a page indicator dot
-    public enum Shape: Equatable {
+    public enum Shape: Equatable, Sendable {
         /// Circle shape
         case circle(radius: CGFloat)
         

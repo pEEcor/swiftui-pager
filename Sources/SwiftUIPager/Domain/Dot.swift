@@ -8,7 +8,7 @@
 import Foundation
 
 /// Indicator Model
-struct Dot {
+struct Dot: Sendable {
     /// Width of the dot
     var width: Double {
         if self.isSelected {

@@ -8,12 +8,12 @@ enum FocusedArea {
     case behindEnd
 }
 
-class IndicatorViewModel: ObservableObject {
+class IndicatorViewModel: ObservableObject, @unchecked Sendable {
     /// Rate that is used to automatically roll the dot collection
-    static var ROLL_UPDATE_RATE = Double(1) / Double(120)
+    static let ROLL_UPDATE_RATE = Double(1) / Double(120)
 
     /// Distance that is rolled per roll frame
-    static var ROLL_DISTANCE_FACTOR = Double(20)
+    static let ROLL_DISTANCE_FACTOR = Double(20)
     
     /// Representation of all dots of the indicator
     @Published private(set) var dots: DotCollection
@@ -65,7 +65,9 @@ class IndicatorViewModel: ObservableObject {
                 self.stopRoll()
             }
         } else {
-            self.stopRoll()
+            if self.rollTimer != nil {
+                self.stopRoll()
+            }
             withAnimation {
                 self.dots.selectDot(with: offset + self.dots.window.offset)
             }
@@ -122,7 +124,7 @@ class IndicatorViewModel: ObservableObject {
     /// Calculates if area before indicator, the indicator itself or area behind the indicator is
     /// focused by the given offset
     ///
-    /// - Parameter hOffset: Offset relative to the start location of the indicator (left border)
+    /// - Parameter offset: Offset relative to the start location of the indicator (left border)
     /// - Returns: The focused area or nil if the indicator itself is focused
     private func calcFocusedArea(offset: CGFloat) -> FocusedArea? {
         if offset < 0 {
@@ -134,51 +136,14 @@ class IndicatorViewModel: ObservableObject {
         }
     }
 
-    /// Startet Rolling (automatisches Scrolling) der Kollektion von Punkten
-    /// - Parameter focusedArea: Ort welcher fokusiert ist
+    /// Starts automated rolling of the window
+    /// - Parameter focusedArea: The area that is focused outside of the indicator
     private func roll(focusedArea: FocusedArea) {
         guard self.rollTimer == nil else {
             return
         }
 
-        self.rollTimer = Timer.scheduledTimer(
-            withTimeInterval: Self.ROLL_UPDATE_RATE,
-            repeats: true
-        ) { [weak self] _ in
-            guard let self = self else { return }
-            
-            if self.dots.window.offset < 0 || self.dots.window.offset > self.dots.width - self.dots.window.width {
-                self.stopRoll()
-            }
-            
-            let movement = self.calcSlice(for: focusedArea)
-            let targetOffset = movement + self.dots.window.offset
-
-            let newOffset = {
-                if targetOffset <= 0 {
-                    return 0.0
-                } else if targetOffset >= self.dots.width - self.dots.window.width {
-                    return self.dots.width - self.dots.window.width
-                } else {
-                    return targetOffset
-                }
-            }()
-            
-            // Dispatch UI changes to main thread
-            self.scheduler.schedule { [weak self] in
-                withAnimation {
-                    guard let self else { return }
-                    
-                    self.dots.setWindowOffset(to: newOffset)
-                    
-                    if movement <= 0 {
-                        self.dots.selectDot(with: self.dots.window.offset)
-                    } else {
-                        self.dots.selectDot(with: self.dots.window.offset + self.dots.window.width)
-                    }
-                }
-            }
-        }
+        self.startRolling(focusedArea: focusedArea)
     }
     
     private func calcSlice(for focusedArea: FocusedArea) -> Double {
@@ -190,6 +155,50 @@ class IndicatorViewModel: ObservableObject {
             return -slice
         case .behindEnd:
             return slice
+        }
+    }
+    
+    private func startRolling(focusedArea: FocusedArea) {
+        self.rollTimer = Timer.scheduledTimer(
+            withTimeInterval: Self.ROLL_UPDATE_RATE,
+            repeats: true
+        ) { [weak self] _ in
+            guard let dots = self?.dots else {
+                return
+            }
+            
+            if dots.window.offset < 0 || dots.window.offset > dots.width - dots.window.width {
+                self?.stopRoll()
+            }
+            
+            guard let movement = self?.calcSlice(for: focusedArea) else {
+                return
+            }
+            
+            let targetOffset = movement + dots.window.offset
+
+            let newOffset = {
+                if targetOffset <= 0 {
+                    return 0.0
+                } else if targetOffset >= dots.width - dots.window.width {
+                    return dots.width - dots.window.width
+                } else {
+                    return targetOffset
+                }
+            }()
+            
+            // Dispatch UI changes to main thread
+            self?.scheduler.schedule { [weak self] in
+                withAnimation {
+                    self?.dots.setWindowOffset(to: newOffset)
+                    
+                    if movement <= 0 {
+                        self?.dots.selectDot(with: dots.window.offset)
+                    } else {
+                        self?.dots.selectDot(with: dots.window.offset + dots.window.width)
+                    }
+                }
+            }
         }
     }
 

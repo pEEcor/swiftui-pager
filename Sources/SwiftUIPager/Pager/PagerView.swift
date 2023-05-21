@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// The PagerView is a container view that shows multiple pages by horizontal scrolling between them
+/// A container view that shows multiple pages by horizontal scrolling between them.
 ///
 /// The PagerView can scroll arbitrary content. It is initialized with a data collection and a view
 /// builder closure that is responsibile for constructing a view for each element of the data

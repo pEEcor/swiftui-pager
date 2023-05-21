@@ -39,7 +39,7 @@ struct PageIndicatorKey: EnvironmentKey {
 }
 
 extension EnvironmentValues {
-    var pageIndicator: PageIndicatorKey.Value {
+    var indicator: PageIndicatorKey.Value {
         get { self[PageIndicatorKey.self] }
         set { self[PageIndicatorKey.self] = newValue }
     }
@@ -55,7 +55,7 @@ extension View {
         @ViewBuilder content: @escaping (Binding<Int>) -> Content
     ) -> some View {
         self.environment(
-            \.pageIndicator,
+            \.indicator,
              IndicatorEnvironment(
                 kind: .custom({ AnyView(content($0)) }),
                 location: location
@@ -74,7 +74,7 @@ extension View {
     ) -> some View {
         if let style = style {
             return self.environment(
-                \.pageIndicator,
+                \.indicator,
                  IndicatorEnvironment(
                     kind: .styled(style, { AnyView(background($0)) }),
                     location: location
@@ -82,7 +82,7 @@ extension View {
             )
         } else {
             return self.environment(
-                \.pageIndicator,
+                \.indicator,
                  IndicatorEnvironment(
                     kind: nil,
                     location: location

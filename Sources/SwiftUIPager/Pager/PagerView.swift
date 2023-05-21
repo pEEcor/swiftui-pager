@@ -28,17 +28,6 @@ import SwiftUI
 ///     }
 /// }
 ///
-/// extension UIColor {
-///     static var random: UIColor {
-///         return UIColor(
-///             red: .random(in: 0...1),
-///             green: .random(in: 0...1),
-///             blue: .random(in: 0...1),
-///             alpha: 1
-///         )
-///     }
-/// }
-///
 /// extension Color {
 ///     static var random: Color {
 ///         return Color(
@@ -80,7 +69,7 @@ public struct PagerView<
     }
 
     public var body: some View {
-        PageIndicatorWrapper(index: self.$index, count: self.data.count) {
+        IndicatorWrapper(index: self.$index, count: self.data.count) {
             Pager(index: self.$index, count: self.data.count) {
                 self.content
             }
@@ -89,8 +78,8 @@ public struct PagerView<
         }
     }
     
-    private struct PageIndicatorWrapper<Content: View>: View {
-        @Environment(\.pageIndicator) private var pageIndicatorEnvironment
+    private struct IndicatorWrapper<Content: View>: View {
+        @Environment(\.indicator) private var indicator
         
         private let index: Binding<Int>
         private let count: Int
@@ -108,44 +97,49 @@ public struct PagerView<
         
         var body: some View {
             VStack(spacing: 0) {
-                if case .top = self.pageIndicatorEnvironment.location {
-                    self.pageIndicator
+                if case .top = self.indicator.location {
+                    Indicator(index: self.index, count: self.count, environment: self.indicator)
                 }
 
                 self.content
 
-                if case .bottom = self.pageIndicatorEnvironment.location {
-                    self.pageIndicator
+                if case .bottom = self.indicator.location {
+                    Indicator(index: self.index, count: self.count, environment: self.indicator)
                 }
             }
         }
         
-        @ViewBuilder
-        private var pageIndicator: some View {
-            switch self.pageIndicatorEnvironment.kind {
-            case let .some(.styled(style, background)):
-                background(
-                    IndicatorView(
-                        count: self.count,
-                        index: self.index,
-                        style: style
+        private struct Indicator: View {
+            let index: Binding<Int>
+            let count: Int
+            let environment: IndicatorEnvironment
+            
+            var body: some View {
+                switch self.environment.kind {
+                case let .some(.styled(style, background)):
+                    background(
+                        IndicatorView(
+                            count: self.count,
+                            index: self.index,
+                            style: style
+                        )
                     )
-                )
-            case .some(.custom(let pageIndicatorBuilder)):
-                pageIndicatorBuilder(
-                    Binding(
-                        get: {
-                            self.index.wrappedValue
-                        },
-                        set: { index, _ in
-                            if index >= 0 && index < self.count {
-                                self.index.wrappedValue = index
+                case .some(.custom(let indicatorBuilder)):
+                    indicatorBuilder(
+                        Binding(
+                            get: {
+                                self.index.wrappedValue
+                            },
+                            set: { index, _ in
+                                if index >= 0 && index < self.count {
+                                    self.index.wrappedValue = index
+                                }
                             }
-                        }
+                        )
                     )
-                )
-            case .none:
-                EmptyView()
+                case .none:
+                    EmptyView()
+                }
             }
         }
     }

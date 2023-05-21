@@ -12,7 +12,7 @@ import SwiftUI
 /// PagerView presents it's content with a hight of the tallest element.
 ///
 /// The following example shows an example where a Pager with 20 randomly colored Pages is setup.
-/// ```
+/// ```swift
 /// struct Item: Identifiable {
 ///     var id: Int { self.number }
 ///     let number: Int
@@ -25,6 +25,7 @@ import SwiftUI
 ///         PagerView(data) { element {
 ///             Color.ramdom
 ///         }
+///         .indicator() // Adds default indicator below pager
 ///     }
 /// }
 ///
@@ -38,6 +39,10 @@ import SwiftUI
 ///     }
 /// }
 /// ```
+///
+/// - Tip: An indicator can be added and styled using ``indicator(location:style:content:)``. Additionally,
+/// the use of ``indicator(location:content:)`` enables the possibility to attach a custom indicator
+/// to the pager.
 public struct PagerView<
     Data: RandomAccessCollection,
     EachContent: View
@@ -47,18 +52,15 @@ public struct PagerView<
     private let data: Data
     private let content: ForEach<Data, Data.Element.ID, EachContent>
 
-    /// A PagerView that allows scrolling through a collection
+    /// Creates a PagerView that allows scrolling through a collection
     ///
     /// The PagerView builds a view for each element in the data collection. And allows scrolling
     /// through the pages.
     ///
-    /// For customization of the PagerView have a look into ``indicator(location:style:)`` and
-    /// ``indicator(location:content:)``.
-    ///
-    /// - Important: All Pages will be built up front. There is no lazy initialization of pages
+    /// - Important: All Pages will be built up front. There is no lazy initialization of pages.
     ///
     /// - Parameters:
-    ///   - data: Source Data with identifiable elements.
+    ///   - data: Source Data with identifiable elements
     ///   - content: ViewBuilder closure that builds a Page for a single element
     public init(
         _ data: Data,

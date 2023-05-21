@@ -1,23 +1,25 @@
 import SwiftUI
 
-/// A PageIndicator that shows a visual representation of which page is currenlty focused by a
-/// pager.
+/// Indicator that shows a horizontal collection of dots.
 ///
-/// The IndicatorView allows multiple interactions that modify the state of a Pager. Usually, a
-/// PageIndicator is showing simple dots, each representing a Page of the associated Pager.
-/// Selecting such a dot focuses the Page in the Pager. Additionally, the IndicatorView enables
-/// scrolling of the dots when the Pager has too much content for the IndicatorView to show a
-/// dot for each page. In this case the dots can be scrolled when performing a drag gesture that
-/// exceeds the IndicatorView's bounds.
+/// The IndicatorView takes a binding that reflects the currently active dot. Modifing this binding
+/// will automatically select the respective dot inside the indicator. Likewise the binding is
+/// adjusted when the indicator is used to change the selected dot. The selection can be changed by
+/// simple tap gestures to the desired dot or by scrubbing the collection with a drag gesture.
+///
+/// The IndicatorView adjusts its size to the amount of dots. If the indicator cannot fit all dots,
+/// the collection starts scrolling when scrubbing past the edges of the Indicator.
 ///
 /// The IndicatorView is independent from any Pager, it can be used for any kind of page
 /// representation through it's index binding. However, if used with the ``PagerView`` that comes
 /// with this library, there are dedicated view modifiers, that provide convienient access to
 /// customize the PageIndicator.
 ///
-/// The page indicator can be styled using ``indicator(location:style:background:)`` if
-/// additional customization is required. If you need to inject a completely custom page indicator,
-/// there is also ``indicator(location:content:)``.
+/// - Note: Apple encourages to think twice when deciding which UI Element to use in its Human
+/// Interface Guidelines. In this context an Indicator like this might not be the best tool when
+/// indicating the current selection of an element in a collection with many elements (which would
+/// required too much scrolling).
+
 public struct IndicatorView: View {
 
     // View model for the page indicator. By using a state object, the view model will be
@@ -32,17 +34,12 @@ public struct IndicatorView: View {
     private let index: Binding<Int>
     private let style: IndicatorStyle
 
-    /// Creates IndicatorView, typlically for manual customization.
-    ///
-    /// You probably don't want to use this directly. The PageIndicator of a PagerView is
-    /// customizable using a dedicated view modifier. See ``indicator(location:style:)``.
-    /// However, the PageIndicator may be decorated with other Views and than injected into the
-    /// PagerView as a custom PageIndicator.
+    /// Creates IndicatorView
     ///
     /// - Parameters:
     ///   - count: Total count of pages
     ///   - index: Binding to index of currently focused page
-    ///   - style: Style of the page indicator
+    ///   - style: Optional style of the page indicator, defaults to a default style
     public init(
         count: Int,
         index: Binding<Int>,

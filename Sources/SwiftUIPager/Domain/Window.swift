@@ -1,27 +1,26 @@
 //
 //  Window.swift
-//  
 //
-//  Created by Paavo Becker on 29.04.23.
+//  Copyright © 2023 Paavo Becker.
 //
 
 struct Window {
     /// The offset that is applied to the window
     private(set) var offset: Double
-    
+
     /// The width of the window
     private(set) var width: Double
-    
+
     /// The leading edge of the window
     var min: Double {
         self.offset
     }
-    
+
     /// the trailing edge of the window
     var max: Double {
         self.offset + self.width
     }
-    
+
     /// Creates a window
     ///
     /// - Parameters:
@@ -34,7 +33,7 @@ struct Window {
         self.offset = offset
         self.width = width
     }
-    
+
     /// For a given offset this method returns the location that is targeted around the window.
     ///
     /// If an area inside the window is focused, `nil` is retured.
@@ -49,14 +48,14 @@ struct Window {
             return nil
         }
     }
-    
+
     /// Resizes the Window to the given width
     ///
     /// - Parameter width: The new width of the window
     mutating func setWidth(to width: Double) {
         self.width = width
     }
-    
+
     /// Sets the window's offset to the given offset
     ///
     /// - Parameter offset: The new offset of the window

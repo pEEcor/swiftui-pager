@@ -1,37 +1,42 @@
-import XCTest
+//
+//  IndicatorViewModelTests.swift
+//
+//  Copyright © 2023 Paavo Becker.
+//
+
 import CombineSchedulers
+import XCTest
 
 @testable import SwiftUIPager
 
 final class PageIndicatorViewModelTests: XCTestCase {
-
     func test_setIndex_shouldSelectDotWithGivenIndex() {
-        let sut = makeSUT(count: 10)
-        
+        let sut = self.makeSUT(count: 10)
+
         // Execute
         sut.setIndex(3)
-        
+
         // Assert
         XCTAssertTrue(sut.dots[3]!.isSelected)
         XCTAssertFalse(sut.dots[0]!.isSelected)
     }
-    
+
     func test_setIndex_shouldPublishNewDotCollection() {
-        let sut = makeSUT(count: 10)
-        
+        let sut = self.makeSUT(count: 10)
+
         let expectation = expectation(description: "wait for publisher")
-        
-        let _ = sut.$dots.first().sink { dots in
+
+        let _ = sut.$dots.first().sink { _ in
             expectation.fulfill()
         }
-        
+
         // Execute
         sut.setIndex(3)
-        
+
         // Assert
         wait(for: [expectation], timeout: 10)
     }
-    
+
 //    func test_setWidth_whereDotCollectionIsLargerThanProposedWidth() {
 //        let sut = makeSUT(
 //            count: 10,
@@ -65,7 +70,7 @@ final class PageIndicatorViewModelTests: XCTestCase {
 //        // Assert
 //        XCTAssertEqual(sut.window.width, 190)
 //    }
-    
+
     private func makeSUT(
         count: Int = 10,
         style: IndicatorStyle = .default,
@@ -76,7 +81,7 @@ final class PageIndicatorViewModelTests: XCTestCase {
             style: style,
             scheduler: scheduler
         )
-        
+
         return sut
     }
 }

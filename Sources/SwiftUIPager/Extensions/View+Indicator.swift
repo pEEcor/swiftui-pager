@@ -1,8 +1,7 @@
 //
 //  View+Indicator.swift
-//  
 //
-//  Created by Paavo Becker on 21.05.23.
+//  Copyright © 2023 Paavo Becker.
 //
 
 import SwiftUI
@@ -18,13 +17,13 @@ extension View {
     ) -> some View {
         self.environment(
             \.indicator,
-             IndicatorEnvironment(
-                kind: .custom({ AnyView(content($0)) }),
+            IndicatorEnvironment(
+                kind: .custom { AnyView(content($0)) },
                 location: location
-             )
+            )
         )
     }
-    
+
     /// Adds an ``IndicatorView`` to a pager in the View hierachy
     /// - Parameters:
     ///   - location: Optional location where the ``IndicatorView`` is placed, defaults to `.bottom`
@@ -35,21 +34,21 @@ extension View {
         style: IndicatorStyle? = nil,
         @ViewBuilder content: @escaping (IndicatorView) -> Content = { _ in AnyView(EmptyView()) }
     ) -> some View {
-        if let style = style {
+        if let style {
             return self.environment(
                 \.indicator,
-                 IndicatorEnvironment(
-                    kind: .styled(style, { AnyView(content($0)) }),
+                IndicatorEnvironment(
+                    kind: .styled(style) { AnyView(content($0)) },
                     location: location
-                 )
+                )
             )
         } else {
             return self.environment(
                 \.indicator,
-                 IndicatorEnvironment(
+                IndicatorEnvironment(
                     kind: nil,
                     location: location
-                 )
+                )
             )
         }
     }

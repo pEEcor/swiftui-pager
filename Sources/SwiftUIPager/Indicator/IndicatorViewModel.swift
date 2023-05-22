@@ -1,6 +1,14 @@
-import SwiftUI
+//
+//  IndicatorViewModel.swift
+//
+//  Copyright © 2023 Paavo Becker.
+//
+
 import Combine
 import CombineSchedulers
+import SwiftUI
+
+// MARK: - FocusedArea
 
 /// Location around Indicator that may be focused
 enum FocusedArea {
@@ -8,24 +16,28 @@ enum FocusedArea {
     case behindEnd
 }
 
+// MARK: - IndicatorViewModel
+
 class IndicatorViewModel: ObservableObject, @unchecked Sendable {
     /// Rate that is used to automatically roll the dot collection
     static let ROLL_UPDATE_RATE = Double(1) / Double(120)
 
     /// Distance that is rolled per roll frame
     static let ROLL_DISTANCE_FACTOR = Double(20)
-    
+
     /// Representation of all dots of the indicator
-    @Published private(set) var dots: DotCollection
-    
+    @Published
+    private(set) var dots: DotCollection
+
     /// The style options for the page indicator
-    @Published private(set) var style: IndicatorStyle
+    @Published
+    private(set) var style: IndicatorStyle
 
     private(set) var hasStartedDrag = false
     private(set) var rollTimer: Timer?
-    
+
     private let scheduler: AnySchedulerOf<DispatchQueue>
-    
+
     /// Creates PageIndicatorViewModel
     ///
     /// - Parameters:
@@ -39,7 +51,7 @@ class IndicatorViewModel: ObservableObject, @unchecked Sendable {
     ) {
         self.style = style
         self.scheduler = scheduler
-        
+
         self.dots = DotCollection(count: count, style: style)
     }
 
@@ -52,7 +64,7 @@ class IndicatorViewModel: ObservableObject, @unchecked Sendable {
         translation: CGSize
     ) {
         self.hasStartedDrag = true
-        
+
         // The targeted offset inside the page indicator window
         let offset = startLocation.x + translation.width
 
@@ -73,7 +85,7 @@ class IndicatorViewModel: ObservableObject, @unchecked Sendable {
             }
         }
     }
-    
+
     /// Handles end of drag Gesture
     func handleDragEnding() {
         // Unset that drag has started
@@ -83,8 +95,10 @@ class IndicatorViewModel: ObservableObject, @unchecked Sendable {
 
     /// Sets the current index
     func setIndex(_ index: Int) {
-        guard index >= 0 && index < self.dots.count else { return }
-        
+        guard index >= 0 && index < self.dots.count else {
+            return
+        }
+
         withAnimation {
             self.dots.selectDot(with: index)
         }
@@ -94,22 +108,22 @@ class IndicatorViewModel: ObservableObject, @unchecked Sendable {
     func setCount(_ count: Int) {
         self.dots.change(count: count)
     }
-    
+
     /// Sets a new style
     /// - Parameter style: The new style
     func setStyle(_ style: IndicatorStyle) {
         self.style = style
     }
-    
+
     /// Sets the width that is proposed by the enclosing view
     /// - Parameter width: The available width for the page indicator view
     func setWidth(_ width: Double) {
         let width = self.calcIndicatorWidth(from: width)
-        
+
         // Set new Window
         self.dots.setWindowWidth(to: width)
     }
-    
+
     /// Calculates the actual page indicator width
     ///
     /// - Returns: Actual page indicator width
@@ -145,11 +159,11 @@ class IndicatorViewModel: ObservableObject, @unchecked Sendable {
 
         self.startRolling(focusedArea: focusedArea)
     }
-    
+
     private func calcSlice(for focusedArea: FocusedArea) -> Double {
         let totalSlice = Self.ROLL_DISTANCE_FACTOR * self.style.plain.shape.width
         let slice = totalSlice * Self.ROLL_UPDATE_RATE
-        
+
         switch focusedArea {
         case .beforeStart:
             return -slice
@@ -157,7 +171,7 @@ class IndicatorViewModel: ObservableObject, @unchecked Sendable {
             return slice
         }
     }
-    
+
     private func startRolling(focusedArea: FocusedArea) {
         self.rollTimer = Timer.scheduledTimer(
             withTimeInterval: Self.ROLL_UPDATE_RATE,
@@ -166,15 +180,15 @@ class IndicatorViewModel: ObservableObject, @unchecked Sendable {
             guard let dots = self?.dots else {
                 return
             }
-            
+
             if dots.window.offset < 0 || dots.window.offset > dots.width - dots.window.width {
                 self?.stopRoll()
             }
-            
+
             guard let movement = self?.calcSlice(for: focusedArea) else {
                 return
             }
-            
+
             let targetOffset = movement + dots.window.offset
 
             let newOffset = {
@@ -186,12 +200,12 @@ class IndicatorViewModel: ObservableObject, @unchecked Sendable {
                     return targetOffset
                 }
             }()
-            
+
             // Dispatch UI changes to main thread
             self?.scheduler.schedule { [weak self] in
                 withAnimation {
                     self?.dots.setWindowOffset(to: newOffset)
-                    
+
                     if movement <= 0 {
                         self?.dots.selectDot(with: dots.window.offset)
                     } else {

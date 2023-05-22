@@ -1,8 +1,7 @@
 //
-//  File.swift
-//  
+//  Color+Sendable.swift
 //
-//  Created by Paavo Becker on 21.05.23.
+//  Copyright © 2023 Paavo Becker.
 //
 
 import SwiftUI

@@ -1,8 +1,7 @@
 //
 //  Dot.swift
-//  
 //
-//  Created by Paavo Becker on 31.03.23.
+//  Copyright © 2023 Paavo Becker.
 //
 
 import Foundation
@@ -17,12 +16,12 @@ struct Dot: Sendable {
             return self.style.plain.shape.width
         }
     }
-    
+
     /// State of the dot
     private(set) var isSelected: Bool
-    
+
     private let style: IndicatorStyle
-    
+
     init(
         isSelected: Bool,
         style: IndicatorStyle
@@ -30,11 +29,11 @@ struct Dot: Sendable {
         self.isSelected = isSelected
         self.style = style
     }
-    
+
     mutating func select() {
         self.isSelected = true
     }
-    
+
     mutating func deselect() {
         self.isSelected = false
     }

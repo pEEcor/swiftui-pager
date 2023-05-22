@@ -1,4 +1,12 @@
+//
+//  PagerView.swift
+//
+//  Copyright © 2023 Paavo Becker.
+//
+
 import SwiftUI
+
+// MARK: - PagerView
 
 /// A container view that shows multiple pages by horizontal scrolling between them.
 ///
@@ -40,14 +48,16 @@ import SwiftUI
 /// }
 /// ```
 ///
-/// - Tip: An indicator can be added and styled using ``indicator(location:style:content:)``. Additionally,
+/// - Tip: An indicator can be added and styled using ``indicator(location:style:content:)``.
+/// Additionally,
 /// the use of ``indicator(location:content:)`` enables the possibility to attach a custom indicator
 /// to the pager.
 public struct PagerView<
     Data: RandomAccessCollection,
     EachContent: View
 >: View where Data.Element: Identifiable {
-    @State private var index: Int = 0
+    @State
+    private var index = 0
 
     private let data: Data
     private let content: ForEach<Data, Data.Element.ID, EachContent>
@@ -79,14 +89,15 @@ public struct PagerView<
             .clipped()
         }
     }
-    
+
     private struct IndicatorWrapper<Content: View>: View {
-        @Environment(\.indicator) private var indicator
-        
+        @Environment(\.indicator)
+        private var indicator
+
         private let index: Binding<Int>
         private let count: Int
         private let content: Content
-        
+
         init(
             index: Binding<Int>,
             count: Int,
@@ -96,7 +107,7 @@ public struct PagerView<
             self.count = count
             self.content = content()
         }
-        
+
         var body: some View {
             VStack(spacing: 0) {
                 if case .top = self.indicator.location {
@@ -110,12 +121,12 @@ public struct PagerView<
                 }
             }
         }
-        
+
         private struct Indicator: View {
             let index: Binding<Int>
             let count: Int
             let environment: IndicatorEnvironment
-            
+
             var body: some View {
                 switch self.environment.kind {
                 case let .some(.styled(style, background)):
@@ -126,7 +137,7 @@ public struct PagerView<
                             style: style
                         )
                     )
-                case .some(.custom(let indicatorBuilder)):
+                case let .some(.custom(indicatorBuilder)):
                     indicatorBuilder(
                         Binding(
                             get: {
@@ -148,31 +159,31 @@ public struct PagerView<
 }
 
 #if DEBUG
-    struct PagerView_Previews: PreviewProvider {
-        struct Item: Identifiable {
-            var id: Int { self.number }
-            let number: Int
-        }
+struct PagerView_Previews: PreviewProvider {
+    struct Item: Identifiable {
+        var id: Int { self.number }
+        let number: Int
+    }
 
-        static let data = [Item(number: 1), Item(number: 2)]
+    static let data = [Item(number: 1), Item(number: 2)]
 
-        static var previews: some View {
-            ContentView1()
-        }
+    static var previews: some View {
+        ContentView1()
+    }
 
-        struct ContentView1: View {
-            var body: some View {
-                PagerView(data) { element in
-                    switch element.number {
-                    case 1:
-                        Color.blue
-                    case 2:
-                        Color.red
-                    default:
-                        Color.green
-                    }
+    struct ContentView1: View {
+        var body: some View {
+            PagerView(data) { element in
+                switch element.number {
+                case 1:
+                    Color.blue
+                case 2:
+                    Color.red
+                default:
+                    Color.green
                 }
             }
         }
     }
+}
 #endif

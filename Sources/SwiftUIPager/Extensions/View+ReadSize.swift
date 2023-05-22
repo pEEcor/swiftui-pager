@@ -1,8 +1,7 @@
 //
 //  View+ReadSize.swift
-//  
 //
-//  Created by Paavo Becker on 11.03.23.
+//  Copyright © 2023 Paavo Becker.
 //
 
 import SwiftUI

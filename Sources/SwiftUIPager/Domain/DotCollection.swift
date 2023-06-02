@@ -6,13 +6,6 @@
 
 import Foundation
 
-// MARK: - Edge
-
-enum Edge {
-    case leading
-    case trailing
-}
-
 // MARK: - DotCollection
 
 /// A Collection that holds a dot model for each dot in the page indicator

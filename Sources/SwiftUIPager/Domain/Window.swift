@@ -39,7 +39,7 @@ struct Window {
     /// If an area inside the window is focused, `nil` is retured.
     /// - Parameter offset: The offset to get location for
     /// - Returns: Location that is targeted by offset
-    func focusedArea(for offset: Double) -> FocusedArea? {
+    func focusedLocation(for offset: Double) -> FocusedLocation? {
         if self.offset - offset < 0 {
             return .beforeStart
         } else if self.offset - offset > 0 {

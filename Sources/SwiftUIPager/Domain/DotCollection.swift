@@ -165,7 +165,7 @@ struct DotCollection: Sendable {
         }
     }
 
-    private func getLocationOf(index: Index) -> FocusedArea? {
+    private func getLocationOf(index: Index) -> FocusedLocation? {
         guard let leadingOffset = self.offset(of: index) else {
             return nil
         }

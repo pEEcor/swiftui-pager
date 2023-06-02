@@ -8,14 +8,6 @@ import Combine
 import CombineSchedulers
 import SwiftUI
 
-// MARK: - FocusedArea
-
-/// Location around Indicator that may be focused
-enum FocusedArea {
-    case beforeStart
-    case behindEnd
-}
-
 // MARK: - IndicatorViewModel
 
 class IndicatorViewModel: ObservableObject, @unchecked Sendable {
@@ -70,9 +62,9 @@ class IndicatorViewModel: ObservableObject, @unchecked Sendable {
 
         // If PageIndicatorView is smaller than collection size, roll when drag gesture focuses
         // area outside of the indicator
-        if let focusedArea = self.calcFocusedArea(offset: offset) {
+        if let focusedArea = self.calcFocusedLocation(offset: offset) {
             if self.dots.width > self.dots.window.width {
-                self.roll(focusedArea: focusedArea)
+                self.roll(focusedLocation: focusedArea)
             } else {
                 self.stopRoll()
             }
@@ -140,7 +132,7 @@ class IndicatorViewModel: ObservableObject, @unchecked Sendable {
     ///
     /// - Parameter offset: Offset relative to the start location of the indicator (left border)
     /// - Returns: The focused area or nil if the indicator itself is focused
-    private func calcFocusedArea(offset: CGFloat) -> FocusedArea? {
+    private func calcFocusedLocation(offset: CGFloat) -> FocusedLocation? {
         if offset < 0 {
             return .beforeStart
         } else if offset > self.dots.window.width {
@@ -151,20 +143,20 @@ class IndicatorViewModel: ObservableObject, @unchecked Sendable {
     }
 
     /// Starts automated rolling of the window
-    /// - Parameter focusedArea: The area that is focused outside of the indicator
-    private func roll(focusedArea: FocusedArea) {
+    /// - Parameter focusedLocation: The area that is focused outside of the indicator
+    private func roll(focusedLocation: FocusedLocation) {
         guard self.rollTimer == nil else {
             return
         }
 
-        self.startRolling(focusedArea: focusedArea)
+        self.startRolling(focusedLocation: focusedLocation)
     }
 
-    private func calcSlice(for focusedArea: FocusedArea) -> Double {
+    private func calcSlice(for focusedLocation: FocusedLocation) -> Double {
         let totalSlice = Self.ROLL_DISTANCE_FACTOR * self.style.plain.shape.width
         let slice = totalSlice * Self.ROLL_UPDATE_RATE
 
-        switch focusedArea {
+        switch focusedLocation {
         case .beforeStart:
             return -slice
         case .behindEnd:
@@ -172,7 +164,7 @@ class IndicatorViewModel: ObservableObject, @unchecked Sendable {
         }
     }
 
-    private func startRolling(focusedArea: FocusedArea) {
+    private func startRolling(focusedLocation: FocusedLocation) {
         self.rollTimer = Timer.scheduledTimer(
             withTimeInterval: Self.ROLL_UPDATE_RATE,
             repeats: true
@@ -185,7 +177,7 @@ class IndicatorViewModel: ObservableObject, @unchecked Sendable {
                 self?.stopRoll()
             }
 
-            guard let movement = self?.calcSlice(for: focusedArea) else {
+            guard let movement = self?.calcSlice(for: focusedLocation) else {
                 return
             }
 

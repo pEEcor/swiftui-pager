@@ -10,6 +10,9 @@ import Foundation
 
 /// Location around Indicator that may be focused
 enum FocusedLocation {
+    /// Location before the the leading edge is focused
     case beforeStart
+
+    /// Location behind the trailing edge is focused
     case behindEnd
 }

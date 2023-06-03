@@ -1,16 +1,18 @@
-// swift-tools-version: 5.8
+// swift-tools-version: 5.7.1
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
 
+// TODO: - Enable when swift-tools 5.8.0 become available an github actions
+
 let swiftSettings: [SwiftSetting] = [
-    .enableUpcomingFeature("BareSlashRegexLiterals"),
-    .enableUpcomingFeature("ConciseMagicFile"),
-    .enableUpcomingFeature("ExistentialAny"),
-    //   .enableUpcomingFeature("ForwardTrailingClosures"),
-    .enableUpcomingFeature("ImplicitOpenExistentials"),
-    .enableUpcomingFeature("StrictConcurrency"),
-    .unsafeFlags(["-warn-concurrency", "-enable-actor-data-race-checks"]),
+//    .enableUpcomingFeature("BareSlashRegexLiterals"),
+//    .enableUpcomingFeature("ConciseMagicFile"),
+//    .enableUpcomingFeature("ExistentialAny"),
+//    .enableUpcomingFeature("ForwardTrailingClosures"),
+//    .enableUpcomingFeature("ImplicitOpenExistentials"),
+//    .enableUpcomingFeature("StrictConcurrency"),
+//    .unsafeFlags(["-warn-concurrency", "-enable-actor-data-race-checks"]),
 ]
 
 let package = Package(

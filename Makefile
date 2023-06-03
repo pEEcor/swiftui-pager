@@ -5,7 +5,7 @@
 # calling make
 CONFIG ?= debug
 TEMP_DIR ?= ${TMPDIR}
-PLATTFORM ?= iOS
+PLATFORM ?= iOS
 
 # Fixed variables
 PLATFORM_IOS = iOS Simulator,id=$(call udid_for,iPhone)
@@ -22,20 +22,20 @@ test:
 github-test:
 ifeq ($(PLATFORM), iOS)
 	@echo "Running tests on $(PLATFORM_IOS)"
-	@set -o pipefail && xcodebuild test \
+	set -o pipefail && xcodebuild test \
 		-configuration $(CONFIG) \
+		-derivedDataPath $(TEMP_DIR)/build \
 		-workspace package.xcworkspace \
 		-scheme swiftui-pager \
-		-destination platform=$(PLATFORM_IOS) \
-		-enableCodeCoverage YES | xcpretty
+		-destination platform="$(PLATFORM_IOS)" | tee $(TEMP_DIR)/xcodebuild.log | xcpretty
 else
 	@echo "Running tests on $(PLATFORM_MACOS)"
-	@set -o pipefail && xcodebuild test \
+	set -o pipefail && xcodebuild test \
 		-configuration $(CONFIG) \
+		-derivedDataPath $(TEMP_DIR)/build \
 		-workspace package.xcworkspace \
 		-scheme swiftui-pager \
-		-destination platform=$(PLATFORM_MACOS) \
-		-enableCodeCoverage YES | tee $TEMP_DIR/xcodebuild | xcpretty
+		-destination platform="$(PLATFORM_MACOS)" | tee $(TEMP_DIR)/xcodebuild.log | xcpretty
 endif
 
 format:

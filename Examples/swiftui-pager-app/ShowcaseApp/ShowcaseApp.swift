@@ -1,6 +1,6 @@
 //
-//  swiftui_pager_appApp.swift
-//  swiftui-pager-app
+//  ShowcaseApp.swift
+//  Showcase
 //
 //  Created by Paavo Becker on 04.03.23.
 //
@@ -8,7 +8,7 @@
 import SwiftUI
 
 @main
-struct SwiftUIPagerApp: App {
+struct ShowcaseApp: App {
     var body: some Scene {
         WindowGroup {
             DemoView()

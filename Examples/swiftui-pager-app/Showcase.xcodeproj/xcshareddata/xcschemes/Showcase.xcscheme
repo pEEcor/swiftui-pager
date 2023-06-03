@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "2F61995C29B371DB00656FB6"
-               BuildableName = "swiftui-pager-app.app"
-               BlueprintName = "swiftui-pager-app"
-               ReferencedContainer = "container:swiftui-pager-app.xcodeproj">
+               BuildableName = "ShowcaseApp.app"
+               BlueprintName = "ShowcaseApp"
+               ReferencedContainer = "container:Showcase.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -57,9 +57,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2F61995C29B371DB00656FB6"
-            BuildableName = "swiftui-pager-app.app"
-            BlueprintName = "swiftui-pager-app"
-            ReferencedContainer = "container:swiftui-pager-app.xcodeproj">
+            BuildableName = "ShowcaseApp.app"
+            BlueprintName = "ShowcaseApp"
+            ReferencedContainer = "container:Showcase.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -74,9 +74,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2F61995C29B371DB00656FB6"
-            BuildableName = "swiftui-pager-app.app"
-            BlueprintName = "swiftui-pager-app"
-            ReferencedContainer = "container:swiftui-pager-app.xcodeproj">
+            BuildableName = "ShowcaseApp.app"
+            BlueprintName = "ShowcaseApp"
+            ReferencedContainer = "container:Showcase.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

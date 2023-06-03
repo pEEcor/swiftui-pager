@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2F61996129B371DB00656FB6 /* SwiftUIPagerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F61996029B371DB00656FB6 /* SwiftUIPagerApp.swift */; };
+		2F61996129B371DB00656FB6 /* ShowcaseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F61996029B371DB00656FB6 /* ShowcaseApp.swift */; };
 		2F61996329B371DB00656FB6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F61996229B371DB00656FB6 /* ContentView.swift */; };
 		2F61996529B371DD00656FB6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2F61996429B371DD00656FB6 /* Assets.xcassets */; };
 		2F61996929B371DD00656FB6 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2F61996829B371DD00656FB6 /* Preview Assets.xcassets */; };
@@ -15,14 +15,14 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		2F61995D29B371DB00656FB6 /* swiftui-pager-app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "swiftui-pager-app.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		2F61996029B371DB00656FB6 /* SwiftUIPagerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIPagerApp.swift; sourceTree = "<group>"; };
+		2F61995D29B371DB00656FB6 /* ShowcaseApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShowcaseApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2F61996029B371DB00656FB6 /* ShowcaseApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowcaseApp.swift; sourceTree = "<group>"; };
 		2F61996229B371DB00656FB6 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		2F61996429B371DD00656FB6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		2F61996629B371DD00656FB6 /* swiftui_pager_app.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = swiftui_pager_app.entitlements; sourceTree = "<group>"; };
+		2F61996629B371DD00656FB6 /* ShowcaseApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShowcaseApp.entitlements; sourceTree = "<group>"; };
 		2F61996829B371DD00656FB6 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		2F61997029B3720B00656FB6 /* swiftui-pager */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "swiftui-pager"; path = ../..; sourceTree = "<group>"; };
-		2F61997729BA49DB00656FB6 /* swiftui-pager-app-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "swiftui-pager-app-Info.plist"; sourceTree = "<group>"; };
+		2F61997729BA49DB00656FB6 /* ShowcaseApp.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = ShowcaseApp.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -40,8 +40,8 @@
 		2F61995429B371DB00656FB6 = {
 			isa = PBXGroup;
 			children = (
-				2F61997729BA49DB00656FB6 /* swiftui-pager-app-Info.plist */,
-				2F61995F29B371DB00656FB6 /* SwiftUIPagerApp */,
+				2F61997729BA49DB00656FB6 /* ShowcaseApp.plist */,
+				2F61995F29B371DB00656FB6 /* ShowcaseApp */,
 				2F61996F29B3720B00656FB6 /* Packages */,
 				2F61995E29B371DB00656FB6 /* Products */,
 				2F61997129B3723C00656FB6 /* Frameworks */,
@@ -51,21 +51,21 @@
 		2F61995E29B371DB00656FB6 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				2F61995D29B371DB00656FB6 /* swiftui-pager-app.app */,
+				2F61995D29B371DB00656FB6 /* ShowcaseApp.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		2F61995F29B371DB00656FB6 /* SwiftUIPagerApp */ = {
+		2F61995F29B371DB00656FB6 /* ShowcaseApp */ = {
 			isa = PBXGroup;
 			children = (
-				2F61996029B371DB00656FB6 /* SwiftUIPagerApp.swift */,
+				2F61996029B371DB00656FB6 /* ShowcaseApp.swift */,
 				2F61996229B371DB00656FB6 /* ContentView.swift */,
 				2F61996429B371DD00656FB6 /* Assets.xcassets */,
-				2F61996629B371DD00656FB6 /* swiftui_pager_app.entitlements */,
+				2F61996629B371DD00656FB6 /* ShowcaseApp.entitlements */,
 				2F61996729B371DD00656FB6 /* Preview Content */,
 			);
-			path = SwiftUIPagerApp;
+			path = ShowcaseApp;
 			sourceTree = "<group>";
 		};
 		2F61996729B371DD00656FB6 /* Preview Content */ = {
@@ -94,9 +94,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		2F61995C29B371DB00656FB6 /* swiftui-pager-app */ = {
+		2F61995C29B371DB00656FB6 /* ShowcaseApp */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2F61996C29B371DD00656FB6 /* Build configuration list for PBXNativeTarget "swiftui-pager-app" */;
+			buildConfigurationList = 2F61996C29B371DD00656FB6 /* Build configuration list for PBXNativeTarget "ShowcaseApp" */;
 			buildPhases = (
 				2F61995929B371DB00656FB6 /* Sources */,
 				2F61995A29B371DB00656FB6 /* Frameworks */,
@@ -106,12 +106,12 @@
 			);
 			dependencies = (
 			);
-			name = "swiftui-pager-app";
+			name = ShowcaseApp;
 			packageProductDependencies = (
 				2F61997429B3728D00656FB6 /* SwiftUIPager */,
 			);
 			productName = "swiftui-pager-app";
-			productReference = 2F61995D29B371DB00656FB6 /* swiftui-pager-app.app */;
+			productReference = 2F61995D29B371DB00656FB6 /* ShowcaseApp.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -129,7 +129,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 2F61995829B371DB00656FB6 /* Build configuration list for PBXProject "swiftui-pager-app" */;
+			buildConfigurationList = 2F61995829B371DB00656FB6 /* Build configuration list for PBXProject "Showcase" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -142,7 +142,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				2F61995C29B371DB00656FB6 /* swiftui-pager-app */,
+				2F61995C29B371DB00656FB6 /* ShowcaseApp */,
 			);
 		};
 /* End PBXProject section */
@@ -165,7 +165,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2F61996329B371DB00656FB6 /* ContentView.swift in Sources */,
-				2F61996129B371DB00656FB6 /* SwiftUIPagerApp.swift in Sources */,
+				2F61996129B371DB00656FB6 /* ShowcaseApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -290,16 +290,16 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = SwiftUIPagerApp/swiftui_pager_app.entitlements;
+				CODE_SIGN_ENTITLEMENTS = ShowcaseApp/ShowcaseApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_ASSET_PATHS = "\"SwiftUIPagerApp/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"ShowcaseApp/Preview Content\"";
 				DEVELOPMENT_TEAM = 7D4U2G5Y99;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "swiftui-pager-app-Info.plist";
+				INFOPLIST_FILE = ShowcaseApp.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -331,16 +331,16 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = SwiftUIPagerApp/swiftui_pager_app.entitlements;
+				CODE_SIGN_ENTITLEMENTS = ShowcaseApp/ShowcaseApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_ASSET_PATHS = "\"SwiftUIPagerApp/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"ShowcaseApp/Preview Content\"";
 				DEVELOPMENT_TEAM = 7D4U2G5Y99;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "swiftui-pager-app-Info.plist";
+				INFOPLIST_FILE = ShowcaseApp.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -370,7 +370,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		2F61995829B371DB00656FB6 /* Build configuration list for PBXProject "swiftui-pager-app" */ = {
+		2F61995829B371DB00656FB6 /* Build configuration list for PBXProject "Showcase" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2F61996A29B371DD00656FB6 /* Debug */,
@@ -379,7 +379,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2F61996C29B371DD00656FB6 /* Build configuration list for PBXNativeTarget "swiftui-pager-app" */ = {
+		2F61996C29B371DD00656FB6 /* Build configuration list for PBXNativeTarget "ShowcaseApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2F61996D29B371DD00656FB6 /* Debug */,

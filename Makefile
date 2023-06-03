@@ -1,21 +1,42 @@
-CONFIG = debug
+# List xcodes simulators and runtimes with:
+# xcrun simctl list
+
+# Variables that are ment to be overridable by specifying them as environment variables when
+# calling make
+CONFIG ?= debug
+TEMP_DIR ?= ${TMPDIR}
+PLATTFORM ?= iOS
+
+# Fixed variables
 PLATFORM_IOS = iOS Simulator,id=$(call udid_for,iPhone)
 PLATFORM_MACOS = macOS
 PLATFORM_MAC_CATALYST = macOS,variant=Mac Catalyst
 PLATFORM_TVOS = tvOS Simulator,id=$(call udid_for,TV)
 PLATFORM_WATCHOS = watchOS Simulator,id=$(call udid_for,Watch)
 
-.PHONY: format test
+.PHONY: format test github-test
 
 test:
-	@for platform in "$(PLATFORM_IOS)" "$(PLATFORM_MACOS)"; do \
-		echo "Running tests on $${platform}"; \
-		xcodebuild test \
-			-configuration $(CONFIG) \
-			-workspace package.xcworkspace \
-			-scheme swiftui-pager \
-			-destination platform="$$platform" || exit 1; \
-	done;
+	@swift test
+
+github-test:
+ifeq ($(PLATFORM), iOS)
+	@echo "Running tests on $(PLATFORM_IOS)"
+	@set -o pipefail && xcodebuild test \
+		-configuration $(CONFIG) \
+		-workspace package.xcworkspace \
+		-scheme swiftui-pager \
+		-destination platform=$(PLATFORM_IOS) \
+		-enableCodeCoverage YES | xcpretty
+else
+	@echo "Running tests on $(PLATFORM_MACOS)"
+	@set -o pipefail && xcodebuild test \
+		-configuration $(CONFIG) \
+		-workspace package.xcworkspace \
+		-scheme swiftui-pager \
+		-destination platform=$(PLATFORM_MACOS) \
+		-enableCodeCoverage YES | tee $TEMP_DIR/xcodebuild | xcpretty
+endif
 
 format:
 	swiftformat --config .swiftformat .

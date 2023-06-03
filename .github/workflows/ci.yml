@@ -1,6 +1,9 @@
 # This workflow will build a Swift project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-swift
 
+#  List xcodes simulators and runtimes with:
+#  xcrun simctl list
+
 name: CI
 
 on:
@@ -12,11 +15,23 @@ jobs:
   execute-unit-tests:
     name: Unit Tests
     runs-on: macos-13
+    strategy:
+      matrix:
+        config: [debug]
+        platform: [iOS, macOS]
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
-    - name: Build
-      run: swift build
+
+    - name: Select Xcode 14.3
+      run: sudo xcode-select -s /Applications/Xcode_14.3.app
+
     - name: Run tests
-      run: make test
+      run: TMP_DIR=${{ runner.temp }} PLATTFORM=${{ matrix.platform }} CONFIG=${{ matrix.config }} make github-test
+
+    - name: Publish xcodebuild.log
+      uses: actions/upload-artifact@v3
+      with:
+        name: xcodebuild.log
+        path: ${{ runner.temp }}/xcodebuild.log

@@ -10,11 +10,12 @@ import Foundation
 struct Dot: Sendable {
     /// Width of the dot
     var width: Double {
-        if self.isSelected {
-            return self.style.focused.shape.width
-        } else {
-            return self.style.plain.shape.width
-        }
+        return self.isSelected ? self.style.focused.shape.width : self.style.plain.shape.width
+    }
+
+    /// Height of the dot
+    var height: Double {
+        return self.isSelected ? self.style.focused.shape.height : self.style.plain.shape.height
     }
 
     /// State of the dot

@@ -8,7 +8,7 @@ import Foundation
 
 // MARK: - DotCollection
 
-/// A Collection that holds a dot model for each dot in the page indicator
+/// A Collection that manages multiple dots
 struct DotCollection: Sendable {
     /// Typealias for index of dots
     typealias Index = Int
@@ -40,7 +40,7 @@ struct DotCollection: Sendable {
 
     /// The height of the dot collection
     var height: Double {
-        return max(self.style.focused.shape.height, self.style.plain.shape.height)
+        return self.dots.max { $0.height < $1.height }?.height ?? 0.0
     }
 
     /// The window over the dots that is currently visible
@@ -76,11 +76,10 @@ struct DotCollection: Sendable {
         return self.dots[index]
     }
 
-    func filter(_ isIncluded: (Dot) throws -> Bool) rethrows -> [Dot] {
-        try self.dots.filter(isIncluded)
-    }
-
-    /// Calculates the offset to the selected dot respecting the styling of all preceding dots
+    /// Calculates the offset to the selected dot respecting the styling of all preceding dots. If
+    /// the styling of the selected dot should be included, set the parameter `includeWidth` to
+    /// true, defaults to false (leading edge).
+    /// - Parameter includeWidth: True if the offset to trailing edge of the dot should be returned
     /// - Returns: Offset to selected dot
     func getOffsetToSelectedDot(
         includeWidth: Bool = false
@@ -158,7 +157,7 @@ struct DotCollection: Sendable {
         }
     }
 
-    private func getLocationOf(index: Index) -> FocusedLocation? {
+    func getLocationOf(index: Index) -> FocusedLocation? {
         guard let leadingOffset = self.offset(of: index) else {
             return nil
         }
@@ -167,9 +166,9 @@ struct DotCollection: Sendable {
             return nil
         }
 
-        if leadingOffset - self.window.offset <= 0 {
+        if leadingOffset - self.window.offset < 0 {
             return .beforeStart
-        } else if self.window.width + self.window.offset - trailingOffset <= 0 {
+        } else if self.window.width + self.window.offset - trailingOffset < 0 {
             return .behindEnd
         } else {
             return nil
@@ -201,7 +200,7 @@ struct DotCollection: Sendable {
     /// - Returns: Index if dot is focused, otherwise nil
     func index(at offset: Double) -> Index? {
         // Ensure that offset is not outside of dot collection
-        guard offset > 0 && offset < self.width else {
+        guard offset >= 0 && offset <= self.width else {
             return nil
         }
 
@@ -216,7 +215,7 @@ struct DotCollection: Sendable {
             let x1 = tmp
             let x2 = tmp + dot.width
 
-            if offset > x1 && offset < x2 {
+            if offset >= x1 && offset <= x2 {
                 return index
             }
 

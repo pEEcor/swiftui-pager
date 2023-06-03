@@ -24,9 +24,9 @@ struct Pager<Content: View>: View {
     /// Builds the actual pager
     ///
     /// - Parameters:
-    ///   - index: Binding des aktuellen indexes
-    ///   - count: Anzahl der Seiten
-    ///   - content: ViewBuilder closure welches ALLE Page baut
+    ///   - index: Binding to the currently selected index
+    ///   - count: Number of pages
+    ///   - content: ViewBuilder that builds each page of the pager
     init(
         index: Binding<Int>,
         count: Int,

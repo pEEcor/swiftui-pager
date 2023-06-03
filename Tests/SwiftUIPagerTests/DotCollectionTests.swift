@@ -126,16 +126,17 @@ final class DotCollectionTests: XCTestCase {
         XCTAssertNotNil(sut[0])
     }
 
-    func test_getOffsetToSelectedDot_ShouldReturnNilWhenDotCollectionIsEmpty() {
+    func test_getOffset_ShouldReturnNilWhenDotDoesNotExist() {
         let sut = self.makeSUT(count: 0)
+        let dot = Dot(isSelected: false, style: .default)
 
-        XCTAssertNil(sut.getOffsetToSelectedDot())
+        XCTAssertNil(sut.getOffset(to: dot))
     }
 
     /// Given: Dot Collection with n Elements
     /// When: Random Element with index i gets selected
-    /// Then: Offset should be i * (plain width
-    func test_getOffsetToSelectedDot_ShouldReturnOffset() {
+    /// Then: Offset should be i * (plain width)
+    func test_getOffset_ShouldReturnOffset() {
         let n = Int.random(in: 2 ... 50)
         let i = Int.random(in: 1 ..< n)
         let focusedWidth = 3.0
@@ -147,9 +148,9 @@ final class DotCollectionTests: XCTestCase {
             spacing: spacing
         )
         var sut = self.makeSUT(count: n, style: style)
-        sut.selectDot(with: i)
+        sut.select(sut[i]!)
 
-        XCTAssertEqual(sut.getOffsetToSelectedDot(), Double(i) * (plainWidth + spacing))
+        XCTAssertEqual(sut.getOffset(to: sut.selectedDot!), Double(i) * (plainWidth + spacing))
     }
 
     func test_isSelectedDotVisible_ShouldReturnTrueIfSelectedDotIsFullyVisible() {
@@ -160,12 +161,12 @@ final class DotCollectionTests: XCTestCase {
         )
         let sut = self.makeSUT(count: 1, style: style)
 
-        let result = sut.isSelectedDotVisible(in: Window(offset: 0, width: 3))
+        let result = sut.isVisible(dot: sut[0]!, inside: Window(offset: 0, width: 3))
 
         XCTAssertTrue(result)
     }
 
-    func test_isSelectedDotVisible_ShouldReturnFalseIfSelectedDotIsNotFullyVisible() {
+    func test_isSelectedDotVisible_shouldReturnFalseIfSelectedDotIsNotFullyVisible() {
         let style = IndicatorStyle(
             plainStyle: .circle(radius: 2),
             focusedStyle: .circle(radius: 3),
@@ -173,33 +174,41 @@ final class DotCollectionTests: XCTestCase {
         )
         let sut = self.makeSUT(count: 1, style: style)
 
-        let result = sut.isSelectedDotVisible(in: Window(offset: 0, width: 2))
+        let result = sut.isVisible(dot: sut[0]!, inside: Window(offset: 0, width: 2))
 
         XCTAssertFalse(result)
     }
 
-    func test_isSelectedDotVisible_ShouldReturnFalseIfDotCollectionIsEmpty() {
+    func test_isVisible_shouldReturnFalseIfDotCollectionIsEmpty() {
         let sut = self.makeSUT(count: 0)
+        let dot = Dot(isSelected: false, style: .default)
 
-        let result = sut.isSelectedDotVisible(in: Window(offset: 0, width: 2))
+        let result = sut.isVisible(dot: dot, inside: Window(offset: 0, width: 2))
 
         XCTAssertFalse(result)
     }
 
-    func test_selectDot_shouldNotChangeSelectionWhenIndexIsOutOfBounds() {
+    func test_isVisible_shouldReturnFalseWhenDotIsNotContainedInDotCollection() {
+        let sut = self.makeSUT(count: 5)
+        let dot = Dot(isSelected: false, style: .default)
+
+        let result = sut.isVisible(dot: dot, inside: Window(offset: 0, width: 2))
+
+        XCTAssertFalse(result)
+    }
+
+    func test_selectDot_shouldNotChangeSelectionWhenDotDoesNotExist() {
         var sut = self.makeSUT(count: 5)
+        let dot = Dot(isSelected: false, style: .default)
 
-        sut.selectDot(with: -1)
-        XCTAssertTrue(sut[0]!.isSelected)
-
-        sut.selectDot(with: 5)
+        sut.select(dot)
         XCTAssertTrue(sut[0]!.isSelected)
     }
 
     func test_selectDot_shouldSelectDot() {
         var sut = self.makeSUT(count: 5)
 
-        sut.selectDot(with: 4)
+        sut.select(sut[4]!)
 
         XCTAssertFalse(sut[0]!.isSelected)
         XCTAssertTrue(sut[4]!.isSelected)
@@ -214,19 +223,22 @@ final class DotCollectionTests: XCTestCase {
         var sut = self.makeSUT(count: 5, style: style)
         sut.setWindowWidth(to: 3)
 
-        sut.selectDot(with: 1)
+        sut.select(sut[1]!)
 
         XCTAssertEqual(sut.window.offset, 3)
     }
 
-    func test_getLocationOf_shouldReturnNilWhenWhenIndexIsOutOfBounds() {
-        let sut = self.makeSUT(count: 5)
+    func test_getLocationOf_shouldReturnNilWhenDotIsInBoundsOfWindow() {
+        let style = IndicatorStyle(
+            plainStyle: .circle(radius: 2),
+            focusedStyle: .circle(radius: 3),
+            spacing: 1
+        )
+        var sut = self.makeSUT(count: 5, style: style)
+        sut.setWindowWidth(to: 3)
 
-        let location1 = sut.getLocationOf(index: -1)
-        XCTAssertNil(location1)
-
-        let location2 = sut.getLocationOf(index: 5)
-        XCTAssertNil(location2)
+        let location = sut.getLocation(of: sut[0]!)
+        XCTAssertNil(location)
     }
 
     func test_getLocationOf_shouldReturnBeforeStartWhenIndexIsOnTheLeadingSideOfTheWindow() {
@@ -239,7 +251,7 @@ final class DotCollectionTests: XCTestCase {
         sut.setWindowWidth(to: 3)
         sut.setWindowOffset(to: 3)
 
-        let location = sut.getLocationOf(index: 0)
+        let location = sut.getLocation(of: sut[0]!)
         XCTAssertEqual(location, .some(.beforeStart))
     }
 
@@ -252,22 +264,8 @@ final class DotCollectionTests: XCTestCase {
         var sut = self.makeSUT(count: 5, style: style)
         sut.setWindowWidth(to: 3)
 
-        let location = sut.getLocationOf(index: 1)
+        let location = sut.getLocation(of: sut[4]!)
         XCTAssertEqual(location, .some(.behindEnd))
-    }
-
-    func test_getLocationOf_shouldReturnNilWhenIndexIsVisibleInsideWindow() {
-        let style = IndicatorStyle(
-            plainStyle: .circle(radius: 2),
-            focusedStyle: .circle(radius: 3),
-            spacing: 1
-        )
-        var sut = self.makeSUT(count: 5, style: style)
-        sut.setWindowWidth(to: 3)
-        sut.setWindowOffset(to: 3.0)
-
-        let location = sut.getLocationOf(index: 1)
-        XCTAssertNil(location)
     }
 
     func test_selectDot_shouldNotChangeSelectionWhenOffsetIsOutOfBounds() {
@@ -278,10 +276,10 @@ final class DotCollectionTests: XCTestCase {
         )
         var sut = self.makeSUT(count: 5, style: style)
 
-        sut.selectDot(with: 15.1)
+        sut.select(at: 15.1)
         XCTAssertTrue(sut[0]!.isSelected)
 
-        sut.selectDot(with: -0.1)
+        sut.select(at: -0.1)
         XCTAssertTrue(sut[0]!.isSelected)
     }
 
@@ -293,7 +291,7 @@ final class DotCollectionTests: XCTestCase {
         )
         var sut = self.makeSUT(count: 5, style: style)
 
-        sut.selectDot(with: 14.0)
+        sut.select(at: 14.0)
 
         XCTAssertTrue(sut[4]!.isSelected)
     }
@@ -330,17 +328,49 @@ final class DotCollectionTests: XCTestCase {
         XCTAssertTrue(sut[0]!.isSelected)
     }
 
-    func test_offset_shouldReturnNilWhenIndexIsOutOfScope() {
-        let sut = self.makeSUT(count: 5)
+    func test_getIndex_shouldReturnNilWhenOffsetIsOutOfScope() {
+        let style = IndicatorStyle(
+            plainStyle: .circle(radius: 2),
+            focusedStyle: .circle(radius: 3),
+            spacing: 1
+        )
+        let sut = self.makeSUT(count: 2, style: style)
 
-        let offset1 = sut.offset(of: -1)
-        XCTAssertNil(offset1)
+        let index1 = sut.getIndex(at: -0.1)
+        XCTAssertNil(index1)
 
-        let offset2 = sut.offset(of: 5)
-        XCTAssertNil(offset2)
+        let index2 = sut.getIndex(at: 6.1)
+        XCTAssertNil(index2)
     }
 
-    func test_offset_shouldReturnOffset() {
+    func test_getIndex_shouldReturnNilWhenDotCollectionIsEmpty() {
+        let sut = self.makeSUT(count: 0)
+
+        let index = sut.getIndex(at: 0.0)
+        XCTAssertNil(index)
+    }
+
+    func test_getIndex_shouldReturnIndexWhenOffsetFocusesDot() {
+        let style = IndicatorStyle(
+            plainStyle: .circle(radius: 2),
+            focusedStyle: .circle(radius: 3),
+            spacing: 1
+        )
+        let sut = self.makeSUT(count: 2, style: style)
+
+        let index = sut.getIndex(at: 4.1)
+        XCTAssertEqual(index, 1)
+    }
+
+    func test_getOffset_shouldReturnNilWhenDotDoesNotExistInDotCollection() {
+        let sut = self.makeSUT(count: 5)
+        let dot = Dot(isSelected: false, style: .default)
+
+        let offset = sut.getOffset(to: dot)
+        XCTAssertNil(offset)
+    }
+
+    func test_getOffset_shouldReturnOffset() {
         let style = IndicatorStyle(
             plainStyle: .circle(radius: 2),
             focusedStyle: .circle(radius: 3),
@@ -348,9 +378,22 @@ final class DotCollectionTests: XCTestCase {
         )
         let sut = self.makeSUT(count: 5, style: style)
 
-        let offset = sut.offset(of: 1)
+        let offset = sut.getOffset(to: sut[1]!)
 
         XCTAssertEqual(offset, 4)
+    }
+
+    func test_getOffset_shouldIncludeTheLastDotsWidthWhenSpecified() {
+        let style = IndicatorStyle(
+            plainStyle: .circle(radius: 2),
+            focusedStyle: .circle(radius: 3),
+            spacing: 1
+        )
+        let sut = self.makeSUT(count: 5, style: style)
+
+        let offset = sut.getOffset(to: sut[1]!, includeDotWidth: true)
+
+        XCTAssertEqual(offset, 6.0)
     }
 
     func test_change_shouldAddDotsWhenCountIsLargerThanElementCountOfDotCollection() {
@@ -373,7 +416,7 @@ final class DotCollectionTests: XCTestCase {
 
     func test_change_shouldShouldSelectLastDotWhenSelectedDotGetsRemoved() {
         var sut = self.makeSUT(count: 5)
-        sut.selectDot(with: 4)
+        sut.select(sut[4]!)
 
         sut.change(count: 3)
 

@@ -20,7 +20,16 @@ struct DotCollection: Sendable {
 
     /// The index of the selected dot
     var selectedIndex: Index? {
-        self.dots.firstIndex(where: { $0.isSelected })
+        guard let selectedDot = self.selectedDot else {
+            return nil
+        }
+
+        return self.getIndex(of: selectedDot)
+    }
+
+    /// The selected dot
+    var selectedDot: Dot? {
+        self.dots.first(where: { $0.isSelected })
     }
 
     /// The width of the dot collection
@@ -54,13 +63,8 @@ struct DotCollection: Sendable {
         style: IndicatorStyle
     ) {
         self.style = style
-        self.dots = Array(
-            repeating: Dot(
-                isSelected: false,
-                style: style
-            ),
-            count: count
-        )
+
+        self.dots = (0 ..< count).map { _ in Dot(isSelected: false, style: style) }
         self.window = Window(offset: .zero, width: .zero)
 
         if !self.dots.isEmpty {
@@ -76,41 +80,19 @@ struct DotCollection: Sendable {
         return self.dots[index]
     }
 
-    /// Calculates the offset to the selected dot respecting the styling of all preceding dots. If
-    /// the styling of the selected dot should be included, set the parameter `includeWidth` to
-    /// true, defaults to false (leading edge).
-    /// - Parameter includeWidth: True if the offset to trailing edge of the dot should be returned
-    /// - Returns: Offset to selected dot
-    func getOffsetToSelectedDot(
-        includeWidth: Bool = false
-    ) -> Double? {
-        guard let selectedDot = self.dots.first(where: { $0.isSelected }) else {
-            return nil
-        }
-
-        let prefixDots = self.dots
-            .prefix(while: { !$0.isSelected })
-
-        let offset = prefixDots
-            .reduce(CGFloat(0)) { partialResult, dot in
-                partialResult + dot.width + self.style.spacing
-            }
-
-        return offset + (includeWidth ? selectedDot.width : 0)
-    }
-
     /// Returns true if selected dot is fully visibile inside the given window
+    /// - Parameter dot: The dot that should be checked for visibility
     /// - Parameter window: The window that describes the visible section of the page indicator
     /// dot collection
     /// - Returns: true if a dot is selected and is fully visible, otherwise false
-    func isSelectedDotVisible(
-        in window: Window
+    func isVisible(
+        dot: Dot,
+        inside window: Window
     ) -> Bool {
-        guard let min: Double = self.getOffsetToSelectedDot() else {
-            return false
-        }
-
-        guard let max: Double = self.getOffsetToSelectedDot(includeWidth: true) else {
+        guard
+            let min: Double = self.getOffset(to: dot),
+            let max: Double = self.getOffset(to: dot, includeDotWidth: true) else
+        {
             return false
         }
 
@@ -122,10 +104,10 @@ struct DotCollection: Sendable {
     /// If the given index is part of the collection of dots, then the dot with the given index
     /// gets selected and the current selection gets canceled. The selections stays unchanged if
     /// the index is not part of the collection.
-    /// - Parameter index: Index of the dot that should be selected
-    mutating func selectDot(with index: Index) {
+    /// - Parameter dot: The dot that should be selected
+    mutating func select(_ dot: Dot) {
         // Abort if index is invalid
-        guard index >= 0 && index < self.dots.count else {
+        guard let index = self.getIndex(of: dot) else {
             return
         }
 
@@ -137,16 +119,18 @@ struct DotCollection: Sendable {
         // Select dot with given index
         self.dots[index].select()
 
-        if !self.isSelectedDotVisible(in: self.window) {
-            switch self.getLocationOf(index: index) {
+        let selectedDot = self.dots[index]
+
+        if !self.isVisible(dot: selectedDot, inside: self.window) {
+            switch self.getLocation(of: selectedDot) {
             case .some(.beforeStart):
-                guard let leadingOffset = self.offset(of: index) else {
+                guard let leadingOffset = self.getOffset(to: selectedDot) else {
                     return
                 }
 
                 self.window.setOffset(to: leadingOffset)
             case .some(.behindEnd):
-                guard let trailingOffset = self.offset(of: index, includeDotWidth: true) else {
+                guard let trailingOffset = self.getOffset(to: selectedDot, includeDotWidth: true) else {
                     return
                 }
 
@@ -157,12 +141,24 @@ struct DotCollection: Sendable {
         }
     }
 
-    func getLocationOf(index: Index) -> FocusedLocation? {
-        guard let leadingOffset = self.offset(of: index) else {
-            return nil
+    /// Selects the dot at the given index
+    /// - Parameter offset: Offset inside collection
+    mutating func select(at offset: Double) {
+        guard let index = self.getIndex(at: offset) else {
+            return
         }
 
-        guard let trailingOffset = self.offset(of: index, includeDotWidth: true) else {
+        self.select(self.dots[index])
+    }
+
+    /// Returns the location in relation to the active window
+    /// - Parameter dot: The dot of interest
+    /// - Returns: Returns location where the dot is located respective to the window
+    func getLocation(of dot: Dot) -> FocusedLocation? {
+        guard
+            let leadingOffset = self.getOffset(to: dot),
+            let trailingOffset = self.getOffset(to: dot, includeDotWidth: true) else
+        {
             return nil
         }
 
@@ -175,20 +171,14 @@ struct DotCollection: Sendable {
         }
     }
 
-    /// Selects the dot at the given index
-    /// - Parameter offset: Offset inside collection
-    mutating func selectDot(with offset: Double) {
-        guard let index = self.index(at: offset) else {
-            return
-        }
-
-        self.selectDot(with: index)
-    }
-
+    /// Sets the width of the window. The window defines the visible part of the dot collection
+    /// - Parameter width: The width of the window
     mutating func setWindowWidth(to width: Double) {
         self.window.setWidth(to: width)
     }
 
+    /// Sets the offset of the window relative to the dot collection
+    /// - Parameter offset: the offset of the window
     mutating func setWindowOffset(to offset: Double) {
         self.window.setOffset(to: offset)
     }
@@ -198,14 +188,14 @@ struct DotCollection: Sendable {
     /// If the offset targets a gap between dots, nil is returned.
     /// - Parameter offset: The offset to get the index for
     /// - Returns: Index if dot is focused, otherwise nil
-    func index(at offset: Double) -> Index? {
-        // Ensure that offset is not outside of dot collection
-        guard offset >= 0 && offset <= self.width else {
+    func getIndex(at offset: Double) -> Index? {
+        // Ensure that dot collection is not empty
+        guard !self.dots.isEmpty else {
             return nil
         }
 
-        // Ensure that dot collection is not empty
-        guard !self.dots.isEmpty else {
+        // Ensure that offset is not outside of dot collection
+        guard offset >= 0 && offset <= self.width else {
             return nil
         }
 
@@ -225,23 +215,41 @@ struct DotCollection: Sendable {
         return nil
     }
 
-    func offset(of index: Index, includeDotWidth: Bool = false) -> Double? {
-        // Ensure that index exists
-        guard index >= 0 && index < self.dots.count else {
+    /// Returns the index of the given dot
+    /// - Parameter dot: The dot to get the index for
+    /// - Returns: The index of the given dot
+    func getIndex(of dot: Dot) -> Index? {
+        self.dots.firstIndex(where: { $0.id == dot.id })
+    }
+
+    /// Returns the offset of the given dot inside the dot collection. Returns nil if the dot is
+    /// not contained in the collection or if the collection is empty
+    /// - Parameters:
+    ///   - dot: The dot to get the offset for
+    ///   - includeDotWidth: When `false` the offset to the leading edge is returned, otherwise the
+    ///   offset to the trailing edge. Defaults to `false`
+    /// - Returns: Offset to leading or trailing edge of dot relative to dot collection
+    func getOffset(
+        to dot: Dot,
+        includeDotWidth: Bool = false
+    ) -> Double? {
+        guard let index = self.dots.firstIndex(where: { $0.id == dot.id }) else {
             return nil
         }
 
-        var offset: Double = 0
+        let prefix = self.dots.prefix(through: index).enumerated()
 
-        for (i, dot) in self.dots.enumerated() {
+        let offset = prefix.reduce(0.0) { partialResult, tuple in
+            let (i, dot) = tuple
+
             if index == i {
-                return includeDotWidth ? offset + dot.width : offset
+                return partialResult + (includeDotWidth ? dot.width : 0)
             } else {
-                offset += dot.width + self.style.spacing
+                return partialResult + dot.width + self.style.spacing
             }
         }
 
-        return nil
+        return offset
     }
 
     mutating func change(count: Int) {
@@ -251,7 +259,7 @@ struct DotCollection: Sendable {
 
             // Check if there is a selected dot. If not, select last element
             if !self.dots.contains(where: \.isSelected) {
-                self.selectDot(with: self.dots.endIndex - 1)
+                self.select(self.dots[self.dots.endIndex - 1])
             }
         } else if count > self.dots.count && self.dots.count == 0 {
             // Append dots
@@ -266,14 +274,10 @@ struct DotCollection: Sendable {
     }
 
     private mutating func append(count: Int) {
+        let count = count - self.count
+
         // Create additional dots
-        let dots = Array(
-            repeating: Dot(
-                isSelected: false,
-                style: self.style
-            ),
-            count: count - self.dots.count
-        )
+        let dots = (0 ..< count).map { _ in Dot(isSelected: false, style: self.style) }
 
         // Append additional dots
         self.dots.append(contentsOf: dots)

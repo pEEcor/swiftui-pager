@@ -11,6 +11,7 @@ import SwiftUI
 struct Pager<Content: View>: View {
     @Binding
     var index: Int
+
     @GestureState
     private var translation: CGFloat = 0
 

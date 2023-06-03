@@ -73,7 +73,7 @@ class IndicatorViewModel: ObservableObject, @unchecked Sendable {
                 self.stopRoll()
             }
             withAnimation {
-                self.dots.selectDot(with: offset + self.dots.window.offset)
+                self.dots.select(at: offset + self.dots.window.offset)
             }
         }
     }
@@ -87,12 +87,12 @@ class IndicatorViewModel: ObservableObject, @unchecked Sendable {
 
     /// Sets the current index
     func setIndex(_ index: Int) {
-        guard index >= 0 && index < self.dots.count else {
+        guard let dot = self.dots[index] else {
             return
         }
 
         withAnimation {
-            self.dots.selectDot(with: index)
+            self.dots.select(dot)
         }
     }
 
@@ -199,9 +199,9 @@ class IndicatorViewModel: ObservableObject, @unchecked Sendable {
                     self?.dots.setWindowOffset(to: newOffset)
 
                     if movement <= 0 {
-                        self?.dots.selectDot(with: dots.window.offset)
+                        self?.dots.select(at: dots.window.offset)
                     } else {
-                        self?.dots.selectDot(with: dots.window.offset + dots.window.width)
+                        self?.dots.select(at: dots.window.offset + dots.window.width)
                     }
                 }
             }

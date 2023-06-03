@@ -7,7 +7,10 @@
 import Foundation
 
 /// Indicator Model
-struct Dot: Sendable {
+struct Dot: Sendable, Identifiable {
+    /// Unique id of the dot
+    let id: UUID
+
     /// Width of the dot
     var width: Double {
         return self.isSelected ? self.style.focused.shape.width : self.style.plain.shape.width
@@ -25,10 +28,12 @@ struct Dot: Sendable {
 
     init(
         isSelected: Bool,
-        style: IndicatorStyle
+        style: IndicatorStyle,
+        id: UUID = UUID()
     ) {
         self.isSelected = isSelected
         self.style = style
+        self.id = id
     }
 
     mutating func select() {

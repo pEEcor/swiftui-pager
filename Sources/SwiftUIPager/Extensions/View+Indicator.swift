@@ -31,7 +31,7 @@ extension View {
     ///   - content: Optional builder that allows for customization of the ``IndicatorView``
     public func indicator<Content: View>(
         location: IndicatorLocation = .bottom,
-        style: IndicatorStyle? = nil,
+        style: IndicatorStyle? = .default,
         @ViewBuilder content: @escaping (IndicatorView) -> Content = { _ in AnyView(EmptyView()) }
     ) -> some View {
         if let style {

@@ -25,7 +25,7 @@ ifeq ($(PLATFORM), iOS)
 	set -o pipefail && xcodebuild test \
 		-configuration $(CONFIG) \
 		-derivedDataPath $(TEMP_DIR)/build \
-		-workspace package.xcworkspace \
+		-workspace .swiftpm/xcode/package.xcworkspace \
 		-scheme swiftui-pager \
 		-destination platform="$(PLATFORM_IOS)" | tee $(TEMP_DIR)/xcodebuild.log | xcpretty
 else
@@ -33,7 +33,7 @@ else
 	set -o pipefail && xcodebuild test \
 		-configuration $(CONFIG) \
 		-derivedDataPath $(TEMP_DIR)/build \
-		-workspace package.xcworkspace \
+		-workspace .swiftpm/xcode/package.xcworkspace \
 		-scheme swiftui-pager \
 		-destination platform="$(PLATFORM_MACOS)" | tee $(TEMP_DIR)/xcodebuild.log | xcpretty
 endif

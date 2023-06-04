@@ -1,3 +1,21 @@
+<p align="center">
+    <a href="https://github.com/pEEcor/swiftui-pager/actions/workflows/ci.yml">
+        <img src="https://github.com/pEEcor/swiftui-pager/actions/workflows/ci.yml/badge.svg?branch=main"
+    </a>
+    <a href="https://github.com/pEEcor/swiftui-pager/tags">
+        <img alt="GitHub tag (latest SemVer)"
+             src="https://img.shields.io/github/v/tag/pEEcor/swiftui-pager?label=version">
+    </a>
+    <img src="https://img.shields.io/badge/Swift-5.7-red"
+         alt="Swift: 5.7">
+    <img src="https://img.shields.io/badge/Platforms-iOS,macOS-orange"
+        alt="Platforms: iOS, macOS">
+    <a href="https://github.com/pEEcor/swiftui-pager/blob/main/LICENSE">
+        <img alt="GitHub" 
+             src="https://img.shields.io/github/license/pEEcor/swiftui-pager">
+    </a>
+</p>
+
 # swiftui-pager
 
 swiftui-pager is a Swift Package that provides a Pager Component written in pure SwiftUI. It comes
@@ -11,7 +29,7 @@ with the following features:
 
 Add the following to your dependencies:
 ```Swift
-.package(url: "https://git.xcor.org/pEEcor/swiftui-pager", from: "0.1.0")
+.package(url: "https://github.com/pEEcor/swiftui-pager", from: "0.1.1")
 ```
 
 ## Usage

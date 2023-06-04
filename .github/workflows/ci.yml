@@ -35,5 +35,5 @@ jobs:
     - name: Publish xcodebuild.log
       uses: actions/upload-artifact@v3
       with:
-        name: xcodebuild.log
+        name: xcodebuild-{{ matrix.config }}-{{ matrix.platform }}.log
         path: ${{ runner.temp }}/xcodebuild.log

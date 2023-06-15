@@ -8,7 +8,7 @@
     </a>
     <img src="https://img.shields.io/badge/Swift-5.7-red"
          alt="Swift: 5.7">
-    <img src="https://img.shields.io/badge/Platforms-iOS,macOS-orange"
+    <img src="https://img.shields.io/badge/Platforms-iOS%20%7C%20macOS-red"
         alt="Platforms: iOS, macOS">
     <a href="https://github.com/pEEcor/swiftui-pager/blob/main/LICENSE">
         <img alt="GitHub" 

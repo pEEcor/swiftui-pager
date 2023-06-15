@@ -59,5 +59,5 @@ view hierarchy somewhere, it will use this indicator specification.
 
 ## Documentation
 
-Either build the docs youself with Xcode `Product -> Build Documentation` or insepct the online
-right here.
+Either build the docs youself with Xcode `Product -> Build Documentation` or insepct the 
+documentation of the `main` branch right [here](https://peecor.github.io/swiftui-pager/main/documentation/swiftuipager/).

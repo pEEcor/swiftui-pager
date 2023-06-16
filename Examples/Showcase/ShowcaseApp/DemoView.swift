@@ -58,7 +58,7 @@ struct DemoView: View {
 }
 
 struct StyledView: View {
-    @State var style: IndicatorStyle? = circles
+    @State var style: IndicatorStyle = .default
     @State var location: IndicatorLocation = .bottom
     
     let data = (0 ..< 20).map { Item(number: $0) }
@@ -68,8 +68,8 @@ struct StyledView: View {
             PagerView(data) { element in
                 Color.random
             }
-            .indicator(location: self.location, style: self.style) { indicator in
-                indicator
+            .indicator(location: self.location) { index in
+                IndicatorView(count: self.data.count, index: index, style: self.style)
                     .padding(8)
                     .background(Capsule())
                     .padding(.top, 8)
@@ -98,10 +98,6 @@ struct StyledView: View {
                     
                     Button("Rects") {
                         self.style = rects
-                    }
-                    
-                    Button("None") {
-                        self.style = nil
                     }
                 }
             }

@@ -8,7 +8,7 @@
     </a>
     <img src="https://img.shields.io/badge/Swift-5.7-red"
          alt="Swift: 5.7">
-    <img src="https://img.shields.io/badge/Platforms-iOS,macOS-orange"
+    <img src="https://img.shields.io/badge/Platforms-iOS%20%7C%20macOS-red"
         alt="Platforms: iOS, macOS">
     <a href="https://github.com/pEEcor/swiftui-pager/blob/main/LICENSE">
         <img alt="GitHub" 
@@ -22,7 +22,7 @@ swiftui-pager is a Swift Package that provides a Pager Component written in pure
 with the following features:
 
 - Scrubbing while draging on the page indicator
-- Scrolling of page indicator when too small
+- Scrolling of dots inside page indicator when too small
 - Full freedom to customize the appearance of the page indicator
 
 ## Installation via SPM
@@ -34,22 +34,33 @@ Add the following to your dependencies:
 
 ## Usage
 
-```Swift
-struct StyledView: View {
-    let data = (0 ..< 10).map { Item(number: $0) }
-    
+ ```swift
+struct Test: View {
+    let numbers = (0 ..< 20)
+
     var body: some View {
-        VStack {
-            PagerView(data) { element in
+        PagerView(numbers, id: \.self) { number in
+            ZStack {
                 Color.random
-            }
-            .indicator { indicator in
-                indicator
-                    .padding(8)
-                    .background(Capsule())
-                    .padding(.top, 8)
+                Text("\(number)")
             }
         }
+        .indicator(location: .bottom) { index in
+            IndicatorView(count: self.numbers.count, index: index)
+                .padding(8)
+                .background(Capsule())
+                .padding(.top, 8)
+        }
+    }
+}
+
+extension Color {
+    static var random: Color {
+        return Color(
+            red: .random(in: 0...1),
+            green: .random(in: 0...1),
+            blue: .random(in: 0...1)
+        )
     }
 }
 ```

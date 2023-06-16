@@ -18,38 +18,9 @@ extension View {
         self.environment(
             \.indicator,
             IndicatorEnvironment(
-                kind: .custom { AnyView(content($0)) },
+                builder: { AnyView(content($0)) },
                 location: location
             )
         )
-    }
-
-    /// Adds an ``IndicatorView`` to a pager in the View hierachy
-    /// - Parameters:
-    ///   - location: Optional location where the ``IndicatorView`` is placed, defaults to `.bottom`
-    ///   - style: Optional style of the ``IndicatorView``, defaults to `nil`
-    ///   - content: Optional builder that allows for customization of the ``IndicatorView``
-    public func indicator<Content: View>(
-        location: IndicatorLocation = .bottom,
-        style: IndicatorStyle? = .default,
-        @ViewBuilder content: @escaping (IndicatorView) -> Content = { _ in AnyView(EmptyView()) }
-    ) -> some View {
-        if let style {
-            return self.environment(
-                \.indicator,
-                IndicatorEnvironment(
-                    kind: .styled(style) { AnyView(content($0)) },
-                    location: location
-                )
-            )
-        } else {
-            return self.environment(
-                \.indicator,
-                IndicatorEnvironment(
-                    kind: nil,
-                    location: location
-                )
-            )
-        }
     }
 }

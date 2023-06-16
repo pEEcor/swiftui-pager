@@ -21,19 +21,18 @@ import SwiftUI
 ///
 /// The following example shows an example where a Pager with 20 randomly colored Pages is setup.
 /// ```swift
-/// struct Item: Identifiable {
-///     var id: Int { self.number }
-///     let number: Int
-/// }
-///
 /// struct Test: View {
-///     let data = (0 ..< 20).map { Item(number: $0) }
-///
+///     let numbers = (0 ..< 20)
 ///     var body: some View {
-///         PagerView(data) { element {
-///             Color.ramdom
+///         PagerView(numbers, id: \.self) { number in
+///             ZStack {
+///                 Color.random
+///                 Text("\(number)")
+///             }
 ///         }
-///         .indicator() // Adds default indicator below pager
+///         .indicator(location: .bottom) { index in
+///             IndicatorView(count: self.numbers.count, index: index)
+///         }
 ///     }
 /// }
 ///
@@ -45,39 +44,56 @@ import SwiftUI
 ///             blue: .random(in: 0...1)
 ///         )
 ///     }
-/// }
+///}
 /// ```
 ///
-/// - Tip: An indicator can be added and styled using ``indicator(location:style:content:)``.
-/// Additionally,
-/// the use of ``indicator(location:content:)`` enables the possibility to attach a custom indicator
-/// to the pager.
+/// - Tip: The use of ``indicator(location:content:)`` enables the possibility to attach a custom
+/// page indicator to the pager.
 public struct PagerView<
     Data: RandomAccessCollection,
+    ID: Hashable,
     EachContent: View
->: View where Data.Element: Identifiable {
+>: View {
     @State
     private var index = 0
 
     private let data: Data
-    private let content: ForEach<Data, Data.Element.ID, EachContent>
+    private let content: ForEach<Data, ID, EachContent>
 
-    /// Creates a PagerView that allows scrolling through a collection
+    /// Creates a PagerView from a collection of identifiable data
     ///
     /// The PagerView builds a view for each element in the data collection. And allows scrolling
     /// through the pages.
     ///
-    /// - Important: All Pages will be built up front. There is no lazy initialization of pages.
+    /// - Important: All Pages are built up front. There is no lazy initialization of pages.
     ///
     /// - Parameters:
-    ///   - data: Source Data with identifiable elements
-    ///   - content: ViewBuilder closure that builds a Page for a single element
+    ///   - data: Source data with identifiable elements
+    ///   - content: ViewBuilder closure that builds a page given a single element
     public init(
         _ data: Data,
         @ViewBuilder content: @escaping (Data.Element) -> EachContent
-    ) where Data.Element: Identifiable {
+    ) where Data.Element: Identifiable, ID == Data.Element.ID {
         self.data = data
         self.content = ForEach(data) { content($0) }
+    }
+    
+    /// Creates a PagerView from a collection of data and a keypath into each element of the
+    /// collection to uniquely identify each element
+    ///
+    /// - Important: All Pages are built up front. There is no lazy initialization of pages.
+    ///
+    /// - Parameters:
+    ///   - data: Source data
+    ///   - id: Keypath to unique identifier of element
+    ///   - content: ViewBuilder closure that builds a page given a single element
+    public init(
+        _ data: Data,
+        id: KeyPath<Data.Element, ID>,
+        @ViewBuilder content: @escaping (Data.Element) -> EachContent
+    ) {
+        self.data = data
+        self.content = ForEach(data, id: id) { content($0) }
     }
 
     public var body: some View {
@@ -89,71 +105,58 @@ public struct PagerView<
             .clipped()
         }
     }
+}
 
-    private struct IndicatorWrapper<Content: View>: View {
-        @Environment(\.indicator)
-        private var indicator
+private struct IndicatorWrapper<Content: View>: View {
+    @Environment(\.indicator)
+    private var indicator
 
-        private let index: Binding<Int>
-        private let count: Int
-        private let content: Content
+    private let index: Binding<Int>
+    private let count: Int
+    private let content: Content
 
-        init(
-            index: Binding<Int>,
-            count: Int,
-            @ViewBuilder content: @escaping () -> Content
-        ) {
-            self.index = index
-            self.count = count
-            self.content = content()
+    init(
+        index: Binding<Int>,
+        count: Int,
+        @ViewBuilder content: @escaping () -> Content
+    ) {
+        self.index = index
+        self.count = count
+        self.content = content()
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            if let indicator, indicator.location == .top {
+                Indicator(index: self.index, count: self.count, environment: indicator)
+            }
+
+            self.content
+
+            if let indicator, indicator.location == .bottom {
+                Indicator(index: self.index, count: self.count, environment: indicator)
+            }
         }
+    }
+
+    private struct Indicator: View {
+        let index: Binding<Int>
+        let count: Int
+        let environment: IndicatorEnvironment
 
         var body: some View {
-            VStack(spacing: 0) {
-                if case .top = self.indicator.location {
-                    Indicator(index: self.index, count: self.count, environment: self.indicator)
-                }
-
-                self.content
-
-                if case .bottom = self.indicator.location {
-                    Indicator(index: self.index, count: self.count, environment: self.indicator)
-                }
-            }
-        }
-
-        private struct Indicator: View {
-            let index: Binding<Int>
-            let count: Int
-            let environment: IndicatorEnvironment
-
-            var body: some View {
-                switch self.environment.kind {
-                case let .some(.styled(style, background)):
-                    background(
-                        IndicatorView(
-                            count: self.count,
-                            index: self.index,
-                            style: style
-                        )
-                    )
-                case let .some(.custom(indicatorBuilder)):
-                    indicatorBuilder(
-                        Binding(
-                            get: {
-                                self.index.wrappedValue
-                            },
-                            set: { index, _ in
-                                if index >= 0 && index < self.count {
-                                    self.index.wrappedValue = index
-                                }
-                            }
-                        )
-                    )
-                case .none:
-                    EmptyView()
-                }
-            }
+            self.environment.builder(
+                Binding(
+                    get: {
+                        self.index.wrappedValue
+                    },
+                    set: { index, _ in
+                        if index >= 0 && index < self.count {
+                            self.index.wrappedValue = index
+                        }
+                    }
+                )
+            )
         }
     }
 }

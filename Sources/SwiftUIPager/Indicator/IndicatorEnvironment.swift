@@ -7,27 +7,12 @@
 import SwiftUI
 
 typealias PageIndicatorBuilder = (Binding<Int>) -> AnyView
-typealias BackgroundBuilder = (IndicatorView) -> AnyView
 
 // MARK: - IndicatorEnvironment
 
 struct IndicatorEnvironment {
-    let kind: IndicatorKind?
+    let builder: PageIndicatorBuilder
     let location: IndicatorLocation
-
-    static var `default`: Self {
-        IndicatorEnvironment(
-            kind: .styled(.default) { _ in AnyView(EmptyView()) },
-            location: .bottom
-        )
-    }
-}
-
-// MARK: - IndicatorKind
-
-enum IndicatorKind {
-    case styled(IndicatorStyle, BackgroundBuilder)
-    case custom(PageIndicatorBuilder)
 }
 
 // MARK: - IndicatorLocation
@@ -40,9 +25,7 @@ public enum IndicatorLocation {
 // MARK: - IndicatorKey
 
 struct IndicatorKey: EnvironmentKey {
-    typealias Value = IndicatorEnvironment
-
-    static var defaultValue: Value = .default
+    static var defaultValue: IndicatorEnvironment? = nil
 }
 
 extension EnvironmentValues {

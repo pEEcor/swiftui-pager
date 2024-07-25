@@ -58,6 +58,7 @@ public struct PagerView<
     private var index = 0
 
     private let data: Data
+    private let configuration: Configuration
     private let content: ForEach<Data, ID, EachContent>
 
     /// Creates a PagerView from a collection of identifiable data
@@ -72,9 +73,11 @@ public struct PagerView<
     ///   - content: ViewBuilder closure that builds a page given a single element
     public init(
         _ data: Data,
+        configuration: Configuration = .default,
         @ViewBuilder content: @escaping (Data.Element) -> EachContent
     ) where Data.Element: Identifiable, ID == Data.Element.ID {
         self.data = data
+        self.configuration = configuration
         self.content = ForEach(data) { content($0) }
     }
     
@@ -90,15 +93,17 @@ public struct PagerView<
     public init(
         _ data: Data,
         id: KeyPath<Data.Element, ID>,
+        configuration: Configuration = .default,
         @ViewBuilder content: @escaping (Data.Element) -> EachContent
     ) {
         self.data = data
+        self.configuration = configuration
         self.content = ForEach(data, id: id) { content($0) }
     }
 
     public var body: some View {
         IndicatorWrapper(index: self.$index, count: self.data.count) {
-            Pager(index: self.$index, count: self.data.count) {
+            Pager(index: self.$index, count: self.data.count, axis: self.configuration.axis) {
                 self.content
             }
             .contentShape(Rectangle())

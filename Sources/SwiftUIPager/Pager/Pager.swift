@@ -18,8 +18,9 @@ struct Pager<Content: View>: View {
     @State
     private var size: CGSize = .zero
 
-    let count: Int
-    let content: Content
+    private let count: Int
+    private let content: Content
+    private let axis: Axis
 
     /// Builds the actual pager
     ///
@@ -30,11 +31,13 @@ struct Pager<Content: View>: View {
     init(
         index: Binding<Int>,
         count: Int,
+        axis: Axis,
         @ViewBuilder content: () -> Content
     ) {
         self.count = count
         self._index = index
         self.content = content()
+        self.axis = axis
     }
 
     var body: some View {
@@ -43,38 +46,82 @@ struct Pager<Content: View>: View {
             self.pager
         }
         .onPreferenceChange(PagerSizePreferenceKey.self) { size in
+            print("size: \(size)")
             self.size = size
         }
     }
 
     @ViewBuilder
     private var sizeReader: some View {
-        Color.clear
-            .frame(maxWidth: .infinity, maxHeight: .zero)
-            .readSize(key: PagerSizePreferenceKey.self)
+        switch self.axis {
+        case .horizontal:
+            Color.clear
+                .frame(maxWidth: .infinity, maxHeight: .zero)
+                .readSize(key: PagerSizePreferenceKey.self)
+        case .vertical:
+            Color.clear
+                .frame(maxWidth: .zero, maxHeight: .infinity)
+                .readSize(key: PagerSizePreferenceKey.self)
+        }
     }
 
     @ViewBuilder
     private var pager: some View {
-        HStack(spacing: 0) {
-            self.content.frame(width: self.size.width)
+        self.container
+            .offset(self.offset)
+            .animation(.interactiveSpring(), value: self.index)
+            .animation(.interactiveSpring(), value: self.translation)
+            .gesture(
+                DragGesture()
+                    .updating(self.$translation) { value, state, _ in
+                        state = switch self.axis {
+                            case .horizontal:
+                                value.translation.width
+                            case .vertical:
+                                value.translation.height
+                        }
+                    }
+                    .onEnded { value in
+                        let offset = switch self.axis {
+                        case .horizontal:
+                            value.translation.width / self.size.width
+                        case .vertical:
+                            value.translation.height / self.size.height
+                        }
+                        
+                        let newIndex = (CGFloat(self.index) - offset).rounded()
+                        self.index = min(max(Int(newIndex), 0), self.count - 1)
+                    }
+            )
+    }
+    
+    @ViewBuilder
+    private var container: some View {
+        switch axis {
+        case .horizontal:
+            HStack(spacing: 0) {
+                self.content
+                    .frame(width: self.size.width)
+            }
+            .frame(width: self.size.width, alignment: .leading)
+        case .vertical:
+            VStack(spacing: 0) {
+                self.content
+                    .frame(height: self.size.height)
+            }
+            .frame(height: self.size.height, alignment: .top)
         }
-        .frame(width: self.size.width, alignment: .leading)
-        .offset(x: -CGFloat(self.index) * self.size.width)
-        .offset(x: self.translation)
-        .animation(.interactiveSpring(), value: self.index)
-        .animation(.interactiveSpring(), value: self.translation)
-        .gesture(
-            DragGesture()
-                .updating(self.$translation) { value, state, _ in
-                    state = value.translation.width
-                }
-                .onEnded { value in
-                    let offset = value.translation.width / self.size.width
-                    let newIndex = (CGFloat(self.index) - offset).rounded()
-                    self.index = min(max(Int(newIndex), 0), self.count - 1)
-                }
-        )
+    }
+    
+    var offset: CGSize {
+        switch self.axis {
+        case .horizontal:
+            let x = (-CGFloat(self.index) * self.size.width) + self.translation
+            return CGSize(width: x, height: 0)
+        case .vertical:
+            let y = (-CGFloat(self.index) * self.size.height) + self.translation
+            return CGSize(width: 0, height: y)
+        }
     }
 }
 
@@ -94,10 +141,11 @@ private struct PagerSizePreferenceKey: PreferenceKey {
 #if DEBUG
 struct Pager_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        HorizontalPagerView()
+        VerticalPagerView()
     }
 
-    struct ContentView: View {
+    struct HorizontalPagerView: View {
         struct Item: Identifiable {
             var id: Int { self.number }
             let number: Int
@@ -109,7 +157,7 @@ struct Pager_Previews: PreviewProvider {
         private var index = 0
 
         var body: some View {
-            Pager(index: self.$index, count: self.data.count) {
+            Pager(index: self.$index, count: self.data.count, axis: .horizontal) {
                 ForEach(self.data) { element in
                     switch element.number {
                     case 1:
@@ -118,6 +166,35 @@ struct Pager_Previews: PreviewProvider {
                     case 2:
                         Color.red
                             .frame(height: 400)
+                    default:
+                        Color.green
+                    }
+                }
+            }
+        }
+    }
+    
+    struct VerticalPagerView: View {
+        struct Item: Identifiable {
+            var id: Int { self.number }
+            let number: Int
+        }
+
+        let data = [Item(number: 1), Item(number: 2), Item(number: 3)]
+
+        @State
+        private var index = 0
+
+        var body: some View {
+            Pager(index: self.$index, count: self.data.count, axis: .vertical) {
+                ForEach(self.data) { element in
+                    switch element.number {
+                    case 1:
+                        Color.blue
+                            .frame(width: 200)
+                    case 2:
+                        Color.red
+                            .frame(width: 300)
                     default:
                         Color.green
                     }

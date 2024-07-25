@@ -140,10 +140,9 @@ private struct PagerSizePreferenceKey: PreferenceKey {
 }
 
 #if DEBUG
-struct Pager_Previews: PreviewProvider {
+struct Horizontal_Previews: PreviewProvider {
     static var previews: some View {
         HorizontalPagerView()
-        VerticalPagerView()
     }
 
     struct HorizontalPagerView: View {
@@ -173,6 +172,12 @@ struct Pager_Previews: PreviewProvider {
                 }
             }
         }
+    }
+}
+
+struct Vertical_Previews: PreviewProvider {
+    static var previews: some View {
+        VerticalPagerView()
     }
     
     struct VerticalPagerView: View {

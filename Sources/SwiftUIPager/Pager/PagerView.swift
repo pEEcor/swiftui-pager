@@ -62,15 +62,16 @@ public struct PagerView<
     private let content: ForEach<Data, ID, EachContent>
 
     /// Creates a PagerView from a collection of identifiable data
-    ///
+    /// 
     /// The PagerView builds a view for each element in the data collection. And allows scrolling
     /// through the pages.
-    ///
+    /// 
     /// - Important: All Pages are built up front. There is no lazy initialization of pages.
-    ///
+    /// 
     /// - Parameters:
-    ///   - data: Source data with identifiable elements
-    ///   - content: ViewBuilder closure that builds a page given a single element
+    ///   - data: Source data with identifiable elements.
+    ///   - configuration: Configuration options for the PagerView.
+    ///   - content: ViewBuilder closure that builds a page given a single element.
     public init(
         _ data: Data,
         configuration: Configuration = .default,
@@ -82,14 +83,15 @@ public struct PagerView<
     }
     
     /// Creates a PagerView from a collection of data and a keypath into each element of the
-    /// collection to uniquely identify each element
+    /// collection to uniquely identify each element.
     ///
     /// - Important: All Pages are built up front. There is no lazy initialization of pages.
     ///
     /// - Parameters:
-    ///   - data: Source data
-    ///   - id: Keypath to unique identifier of element
-    ///   - content: ViewBuilder closure that builds a page given a single element
+    ///   - data: Source data.
+    ///   - id: Keypath to unique identifier of element.
+    ///   - configuration: Configuration options for the PagerView.
+    ///   - content: ViewBuilder closure that builds a page given a single element.
     public init(
         _ data: Data,
         id: KeyPath<Data.Element, ID>,

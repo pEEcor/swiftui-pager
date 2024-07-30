@@ -53,59 +53,105 @@ public struct PagerView<
     Data: RandomAccessCollection,
     ID: Hashable,
     EachContent: View
->: View {
-    @State
-    private var index = 0
+>: View where Data.Element: Identifiable, ID == Data.Element.ID, Data.Index == Int {
+    private let internalIndex: State<Int> = State(initialValue: 0)
+    private let index: Binding<Int>?
 
     private let data: Data
     private let configuration: Configuration
-    private let content: ForEach<Data, ID, EachContent>
-
+    private let content: (Data.Element) -> EachContent
+    
+    private init(
+        _ data: Data,
+        selection: Binding<Int>? = nil,
+        configuration: Configuration = .default,
+        @ViewBuilder content: @escaping (Data.Element) -> EachContent
+    )  {
+        self.data = data
+        self.index = selection
+        self.configuration = configuration
+        self.content = content
+    }
+    
     /// Creates a PagerView from a collection of identifiable data
-    /// 
+    ///
     /// The PagerView builds a view for each element in the data collection. And allows scrolling
     /// through the pages.
-    /// 
+    ///
     /// - Important: All Pages are built up front. There is no lazy initialization of pages.
-    /// 
+    ///
     /// - Parameters:
     ///   - data: Source data with identifiable elements.
     ///   - configuration: Configuration options for the PagerView.
     ///   - content: ViewBuilder closure that builds a page given a single element.
     public init(
         _ data: Data,
-        configuration: Configuration = .default,
-        @ViewBuilder content: @escaping (Data.Element) -> EachContent
-    ) where Data.Element: Identifiable, ID == Data.Element.ID {
-        self.data = data
-        self.configuration = configuration
-        self.content = ForEach(data) { content($0) }
-    }
-    
-    /// Creates a PagerView from a collection of data and a keypath into each element of the
-    /// collection to uniquely identify each element.
-    ///
-    /// - Important: All Pages are built up front. There is no lazy initialization of pages.
-    ///
-    /// - Parameters:
-    ///   - data: Source data.
-    ///   - id: Keypath to unique identifier of element.
-    ///   - configuration: Configuration options for the PagerView.
-    ///   - content: ViewBuilder closure that builds a page given a single element.
-    public init(
-        _ data: Data,
-        id: KeyPath<Data.Element, ID>,
+        selection: Binding<Data.Element>,
         configuration: Configuration = .default,
         @ViewBuilder content: @escaping (Data.Element) -> EachContent
     ) {
+        self.init(
+            data,
+            selection: Binding(
+                get: {
+                    let selectedIndex = data.firstIndex(where: { selection.id == $0.id }) ?? 0
+                    return selectedIndex
+                },
+                set: {
+                    if 0 <= $0 && $0 < data.count {
+                        selection.wrappedValue = data[$0]
+                    }
+                }
+            ),
+            configuration: configuration,
+            content: content
+        )
+    }
+    
+    public init(
+        _ data: Data,
+        configuration: Configuration = .default,
+        @ViewBuilder content: @escaping (Data.Element) -> EachContent
+    ) {
+        self.init(data, selection: nil, configuration: configuration, content: content)
+    }
+    
+    public var body: some View {
+        _PagerView(
+            data,
+            selection: self.index ?? self.internalIndex.projectedValue,
+            configuration: configuration,
+            content: content
+        )
+    }
+}
+
+private struct _PagerView<
+    Data: RandomAccessCollection,
+    ID: Hashable,
+    EachContent: View
+>: View where Data.Element: Identifiable, ID == Data.Element.ID, Data.Index == Int {
+    private var index: Binding<Int>
+
+    private let data: Data
+    private let configuration: PagerView<Data, ID, EachContent>.Configuration
+    private let content: ForEach<Data, ID, EachContent>
+    
+    init(
+        _ data: Data,
+        selection: Binding<Int>,
+        configuration: PagerView<Data, ID, EachContent>.Configuration = .default,
+        @ViewBuilder content: @escaping (Data.Element) -> EachContent
+    ) {
         self.data = data
+        self.index = selection
         self.configuration = configuration
-        self.content = ForEach(data, id: id) { content($0) }
+        self.content = ForEach(data) { content($0) }
     }
 
-    public var body: some View {
-        IndicatorWrapper(index: self.$index, count: self.data.count) {
-            Pager(index: self.$index, count: self.data.count, axis: self.configuration.axis) {
+    var body: some View {
+        IndicatorWrapper(index: self.index, count: self.data.count) {
+            Pager(index: self.index, count: self.data.count, axis: self.configuration.axis) {
                 self.content
             }
             .contentShape(Rectangle())
@@ -170,19 +216,50 @@ private struct IndicatorWrapper<Content: View>: View {
 
 #if DEBUG
 struct PagerView_Previews: PreviewProvider {
-    struct Item: Identifiable {
-        var id: Int { self.number }
-        let number: Int
-    }
-
-    static let data = [Item(number: 1), Item(number: 2)]
-
     static var previews: some View {
-        ContentView1()
+        Content()
     }
-
-    struct ContentView1: View {
+    
+    struct Content: View {
+        let data = [Item(number: 1), Item(number: 2)]
+        
+        struct Item: Identifiable, Hashable {
+            var id: Int { self.number }
+            let number: Int
+        }
+        
+        @State var selection: Item = Item(number: 1)
+        
         var body: some View {
+            VStack {
+                Picker(selection: $selection) {
+                    ForEach(data) { selection in
+                        Text("\(selection.number)")
+                            .tag(selection)
+                    }
+                } label: {
+                    Text("Elements")
+                }
+
+                content1
+                content2
+            }
+        }
+        
+        var content1: some View {
+            PagerView(data, selection: $selection) { element in
+                switch element.number {
+                case 1:
+                    Color.blue
+                case 2:
+                    Color.red
+                default:
+                    Color.green
+                }
+            }
+        }
+        
+        var content2: some View {
             PagerView(data) { element in
                 switch element.number {
                 case 1:

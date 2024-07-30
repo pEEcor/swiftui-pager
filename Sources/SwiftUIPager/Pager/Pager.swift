@@ -47,7 +47,6 @@ struct Pager<Content: View>: View {
             self.pager
         }
         .onPreferenceChange(PagerSizePreferenceKey.self) { size in
-            print("size: \(size)")
             self.size = size
         }
     }

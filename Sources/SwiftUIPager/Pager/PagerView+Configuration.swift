@@ -1,18 +1,19 @@
 //
-//  File.swift
-//  
+//  PagerView+Configuration.swift
 //
-//  Created by Paavo Becker on 25.07.24.
+//  Copyright © 2024 Paavo Becker.
 //
 
 import Foundation
+
+// MARK: - PagerView.Configuration
 
 extension PagerView {
     /// Configuration options for a ``PagerView``.
     public struct Configuration {
         /// The scroll direction happens along this axis.
         let axis: Axis
-        
+
         public init(axis: Axis) {
             self.axis = axis
         }
@@ -24,6 +25,8 @@ extension PagerView.Configuration {
         PagerView.Configuration(axis: .horizontal)
     }
 }
+
+// MARK: - Axis
 
 public enum Axis {
     case horizontal

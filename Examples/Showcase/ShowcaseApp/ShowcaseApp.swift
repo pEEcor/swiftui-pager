@@ -1,8 +1,7 @@
 //
 //  ShowcaseApp.swift
-//  Showcase
 //
-//  Created by Paavo Becker on 04.03.23.
+//  Copyright © 2023 Paavo Becker.
 //
 
 import SwiftUI

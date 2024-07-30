@@ -75,10 +75,10 @@ struct Pager<Content: View>: View {
                 DragGesture()
                     .updating(self.$translation) { value, state, _ in
                         state = switch self.axis {
-                            case .horizontal:
-                                value.translation.width
-                            case .vertical:
-                                value.translation.height
+                        case .horizontal:
+                            value.translation.width
+                        case .vertical:
+                            value.translation.height
                         }
                     }
                     .onEnded { value in
@@ -88,16 +88,16 @@ struct Pager<Content: View>: View {
                         case .vertical:
                             value.translation.height / self.size.height
                         }
-                        
+
                         let newIndex = (CGFloat(self.index) - offset).rounded()
                         self.index = min(max(Int(newIndex), 0), self.count - 1)
                     }
             )
     }
-    
+
     @ViewBuilder
     private var container: some View {
-        switch axis {
+        switch self.axis {
         case .horizontal:
             HStack(spacing: 0) {
                 self.content
@@ -112,7 +112,7 @@ struct Pager<Content: View>: View {
             .frame(height: self.size.height, alignment: .top)
         }
     }
-    
+
     var offset: CGSize {
         switch self.axis {
         case .horizontal:
@@ -178,7 +178,7 @@ struct Vertical_Previews: PreviewProvider {
     static var previews: some View {
         VerticalPagerView()
     }
-    
+
     struct VerticalPagerView: View {
         struct Item: Identifiable {
             var id: Int { self.number }

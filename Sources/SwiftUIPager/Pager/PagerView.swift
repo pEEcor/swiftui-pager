@@ -8,16 +8,19 @@ import SwiftUI
 
 // MARK: - PagerView
 
-/// A container view that shows multiple pages by horizontal scrolling between them.
+/// A container view that shows multiple pages by scrolling between them.
 ///
 /// The PagerView can scroll arbitrary content. It is initialized with a data collection and a view
 /// builder closure that is responsibile for constructing a view for each element of the data
 /// collection.
 ///
-/// The PagerView's intrinsic content size is infinite in horizontal direction. In vertical
-/// direction the PagerViews just wraps around the content of that is provided by the view builder
-/// closure. If that closure constructs views of different height for the elements, then the
-/// PagerView presents it's content with a hight of the tallest element.
+/// ## Sizing behavior
+///
+/// The PagerView's intrinsic content size is infinite in the scroll direction. In the other
+/// direction, the pager takes the size of the largest view which is provided by the viewbuilder
+/// for each element.
+///
+/// ## Example
 ///
 /// The following example shows an example where a Pager with 20 randomly colored Pages is setup.
 /// ```swift

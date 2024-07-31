@@ -27,7 +27,8 @@ with the following features:
 
 ## Installation via SPM
 
-Add the following to your dependencies:
+Add the following to you `Package.swift` description. Replace `version` with the tag of the
+desired version listed in [Releases](https://github.com/pEEcor/swiftui-pager/releases).
 ```Swift
 .package(url: "https://github.com/pEEcor/swiftui-pager", from: "0.1.1")
 ```

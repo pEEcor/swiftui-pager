@@ -21,7 +21,7 @@ let rects = IndicatorStyle(
 
 // MARK: - Item
 
-struct Item: Identifiable {
+struct Item: Identifiable, Hashable {
     var id: Int { self.number }
     let number: Int
 }
@@ -65,15 +65,28 @@ struct DemoView: View {
 
 struct StyledView: View {
     @State
-    var style: IndicatorStyle = .default
+    private var style: IndicatorStyle = .default
+    
     @State
-    var location: IndicatorLocation = .bottom
+    private var location: IndicatorLocation = .bottom
+    
+    @State 
+    private var selection: Item = Item(number: 0)
 
-    let data = (0 ..< 20).map { Item(number: $0) }
+    private let data = (0 ..< 20).map { Item(number: $0) }
 
     var body: some View {
         VStack {
-            PagerView(self.data) { _ in
+            Picker(selection: self.$selection) {
+                ForEach(self.data) { selection in
+                    Text("\(selection.number)")
+                        .tag(selection)
+                }
+            } label: {
+                Text("Elements")
+            }
+            
+            PagerView(self.data, selection: self.$selection) { _ in
                 Color.random
             }
             .indicator(location: self.location) { index in
